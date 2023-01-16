@@ -1,0 +1,33 @@
+---
+title: In-class Exercise 2
+date: "`r Sys.Date()`"
+format: html
+execute: 
+  message: false
+  warning: false
+editor: visual
+---
+
+```{r}
+#! code-fold: true
+#! code-summary: "Show the code"
+pacman::p_load(sf, tidyverse, funModeling)
+```
+
+## Aspatial data
+
+```{r}
+
+```
+
+## Geospatial data
+
+```{r}
+geoNGA = st_read(dsn = "geospatial", 
+                  layer = "geoBoundaries-NGA-ADM2")%>%
+  st_transform(crs = 26392)
+st_geometry(geoNGA)
+glimpse(geoNGA)
+head(geoNGA, n=5) 
+plot(geoNGA)
+```

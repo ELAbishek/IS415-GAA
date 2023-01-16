@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IS415-GAA",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "in-class-exercise/wk2/wk2/wk2.html",
+    "href": "in-class-exercise/wk2/wk2/wk2.html",
+    "title": "In-class Exercise 2",
+    "section": "",
+    "text": "#! code-fold: true\n#! code-summary: \"Show the code\"\npacman::p_load(sf, tidyverse, funModeling)"
+  },
+  {
+    "objectID": "in-class-exercise/wk2/wk2/wk2.html#aspatial-data",
+    "href": "in-class-exercise/wk2/wk2/wk2.html#aspatial-data",
+    "title": "In-class Exercise 2",
+    "section": "Aspatial data",
+    "text": "Aspatial data"
+  },
+  {
+    "objectID": "in-class-exercise/wk2/wk2/wk2.html#geospatial-data",
+    "href": "in-class-exercise/wk2/wk2/wk2.html#geospatial-data",
+    "title": "In-class Exercise 2",
+    "section": "Geospatial data",
+    "text": "Geospatial data\n\ngeoNGA = st_read(dsn = \"geospatial\", \n                  layer = \"geoBoundaries-NGA-ADM2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84\n\nst_geometry(geoNGA)\n\nGeometry set for 774 features \nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 26662.71 ymin: 30523.38 xmax: 1344157 ymax: 1096029\nProjected CRS: Minna / Nigeria Mid Belt\nFirst 5 geometries:\n\nglimpse(geoNGA)\n\nRows: 774\nColumns: 6\n$ shapeName  <chr> \"Aba North\", \"Aba South\", \"Abadam\", \"Abaji\", \"Abak\", \"Abaka…\n$ Level      <chr> \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"AD…\n$ shapeID    <chr> \"NGA-ADM2-72505758B79815894\", \"NGA-ADM2-72505758B67905963\",…\n$ shapeGroup <chr> \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NG…\n$ shapeType  <chr> \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"AD…\n$ geometry   <MULTIPOLYGON [m]> MULTIPOLYGON (((548795.5 11..., MULTIPOLYGON (…\n\nhead(geoNGA, n=5) \n\nSimple feature collection with 5 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 481088 ymin: 98142.39 xmax: 1248985 ymax: 1079710\nProjected CRS: Minna / Nigeria Mid Belt\n  shapeName Level                    shapeID shapeGroup shapeType\n1 Aba North  ADM2 NGA-ADM2-72505758B79815894        NGA      ADM2\n2 Aba South  ADM2 NGA-ADM2-72505758B67905963        NGA      ADM2\n3    Abadam  ADM2 NGA-ADM2-72505758B57073987        NGA      ADM2\n4     Abaji  ADM2 NGA-ADM2-72505758B61968000        NGA      ADM2\n5      Abak  ADM2 NGA-ADM2-72505758B39432389        NGA      ADM2\n                        geometry\n1 MULTIPOLYGON (((548795.5 11...\n2 MULTIPOLYGON (((541412.3 12...\n3 MULTIPOLYGON (((1248985 104...\n4 MULTIPOLYGON (((510864.9 57...\n5 MULTIPOLYGON (((594269 1209...\n\nplot(geoNGA)"
+  }
+]

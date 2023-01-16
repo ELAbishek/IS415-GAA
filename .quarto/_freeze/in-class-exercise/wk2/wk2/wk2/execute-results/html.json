@@ -1,0 +1,16 @@
+{
+  "hash": "8a57d01b80a58889945b011263689311",
+  "result": {
+    "markdown": "---\ntitle: In-class Exercise 2\ndate: \"2023-01-16\"\nformat: html\nexecute: \n  message: false\n  warning: false\neditor: visual\n---\n\n::: {.cell}\n\n```{.r .cell-code}\n#! code-fold: true\n#! code-summary: \"Show the code\"\npacman::p_load(sf, tidyverse, funModeling)\n```\n:::\n\n\n## Aspatial data\n\n\n::: {.cell}\n\n:::\n\n\n## Geospatial data\n\n\n::: {.cell}\n\n```{.r .cell-code}\ngeoNGA = st_read(dsn = \"geospatial\", \n                  layer = \"geoBoundaries-NGA-ADM2\")%>%\n  st_transform(crs = 26392)\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84\n```\n:::\n\n```{.r .cell-code}\nst_geometry(geoNGA)\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nGeometry set for 774 features \nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 26662.71 ymin: 30523.38 xmax: 1344157 ymax: 1096029\nProjected CRS: Minna / Nigeria Mid Belt\nFirst 5 geometries:\n```\n:::\n\n```{.r .cell-code}\nglimpse(geoNGA)\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nRows: 774\nColumns: 6\n$ shapeName  <chr> \"Aba North\", \"Aba South\", \"Abadam\", \"Abaji\", \"Abak\", \"Abaka…\n$ Level      <chr> \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"AD…\n$ shapeID    <chr> \"NGA-ADM2-72505758B79815894\", \"NGA-ADM2-72505758B67905963\",…\n$ shapeGroup <chr> \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NGA\", \"NG…\n$ shapeType  <chr> \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"ADM2\", \"AD…\n$ geometry   <MULTIPOLYGON [m]> MULTIPOLYGON (((548795.5 11..., MULTIPOLYGON (…\n```\n:::\n\n```{.r .cell-code}\nhead(geoNGA, n=5) \n```\n\n::: {.cell-output .cell-output-stdout}\n```\nSimple feature collection with 5 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 481088 ymin: 98142.39 xmax: 1248985 ymax: 1079710\nProjected CRS: Minna / Nigeria Mid Belt\n  shapeName Level                    shapeID shapeGroup shapeType\n1 Aba North  ADM2 NGA-ADM2-72505758B79815894        NGA      ADM2\n2 Aba South  ADM2 NGA-ADM2-72505758B67905963        NGA      ADM2\n3    Abadam  ADM2 NGA-ADM2-72505758B57073987        NGA      ADM2\n4     Abaji  ADM2 NGA-ADM2-72505758B61968000        NGA      ADM2\n5      Abak  ADM2 NGA-ADM2-72505758B39432389        NGA      ADM2\n                        geometry\n1 MULTIPOLYGON (((548795.5 11...\n2 MULTIPOLYGON (((541412.3 12...\n3 MULTIPOLYGON (((1248985 104...\n4 MULTIPOLYGON (((510864.9 57...\n5 MULTIPOLYGON (((594269 1209...\n```\n:::\n\n```{.r .cell-code}\nplot(geoNGA)\n```\n\n::: {.cell-output-display}\n![](wk2_files/figure-html/unnamed-chunk-3-1.png){width=672}\n:::\n:::\n",
+    "supporting": [
+      "wk2_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
