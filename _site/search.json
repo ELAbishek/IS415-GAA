@@ -7,13 +7,6 @@
     "text": "About this site\n\n1 + 1\n\n[1] 2"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "IS415-GAA",
-    "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
-  },
-  {
     "objectID": "in-class-exercise/wk2/wk2/wk2.html",
     "href": "in-class-exercise/wk2/wk2/wk2.html",
     "title": "In-class Exercise 2",
@@ -33,5 +26,12 @@
     "title": "In-class Exercise 2",
     "section": "Geospatial data",
     "text": "Geospatial data\n\ngeoNGA <- st_read(dsn = \"geospatial\", \n                  layer = \"geoBoundaries-NGA-ADM2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84\n\nNGA <- st_read(\"geospatial\",\n               layer = \"nga_admbnda_adm2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `nga_admbnda_adm2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 16 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IS415-GAA",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
   }
 ]
