@@ -10,7 +10,7 @@ website:
           - wk2.qmd
       - text: "In-class exercise"
         menu: 
-          - text: "In class 1"
+          - text: "In-class exercise 1"
             href: "in-class-exercise/wk2/wk2/wk2.qmd"
     right: 
       - href: index.qmd
