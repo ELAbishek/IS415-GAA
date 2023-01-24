@@ -37,3 +37,78 @@ NGA <- st_read("geospatial",
                layer = "nga_admbnda_adm2")%>%
   st_transform(crs = 26392)
 ```
+
+# Data processing
+
+```{r}
+wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
+glimpse(wp_nga)
+
+wp_sf <- st_sf(wp_nga, crs=4326)
+wp_sf
+```
+
+# Transformation
+
+```{r}
+wp_sf <- wp_sf %>%
+  st_transform(crs = 26392)
+```
+
+# Calculate proportion of functional to non functional waterpoints
+
+```{r}
+unique(wp_sf$`#status_clean`)
+
+functional <- wp_sf %>% filter(`#status_clean` == "Functional") 
+WP_Functional <- lengths(st_intersects(geoNGA, functional))
+
+non_functional <- wp_sf %>% filter(`#status_clean` == "Non-Functional")
+WP_Non_Functional <- lengths(st_intersects(geoNGA, non_functional))
+
+WP_Total <- lengths(st_intersects(geoNGA, wp_sf))
+```
+
+# Combine spatial and aspatial data
+
+```{r}
+nga_combined <- tibble(geoNGA, WP_Functional, WP_Non_Functional, WP_Total)
+```
+
+```{r}
+nga_combined <- nga_combined %>%
+  mutate(`WP_Functional_Proportion` = `WP_Functional`/`WP_Total`,
+         `WP_Non_Functional_Proportion` = `WP_Non_Functional`/`WP_Total`)
+```
+
+```{r}
+nga_combined$`WP_Functional_Proportion`[is.na(nga_combined$`WP_Functional_Proportion`)] = 0
+
+nga_combined$`WP_Non_Functional_Proportion`[is.na(nga_combined$`WP_Non_Functional_Proportion`)] = 0
+```
+
+```{r}
+head(nga_combined, n=5)
+```
+
+# Visualizing the data
+
+```{r}
+ggplot(data=nga_combined, 
+       aes(x= as.numeric(`WP_Total`)))+
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue") +
+  labs(title = "Distribution of Total Water Points",
+       x = "Number of Water Points",
+       y = "Number of LGAs")
+```
+
+```{r}
+ggplot(data=nga_combined, 
+       aes(y = `WP_Total`, 
+           x= as.numeric(`WP_Functional_Proportion`)))+
+  geom_point(color="violet") +
+  labs(x = "Proportion Functional",
+       y = "Total Water Points")
+```
