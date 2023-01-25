@@ -8,7 +8,7 @@ website:
       - text: "Hands-on exercise"
         menu: 
           - text: "Hands-on exercise 2"
-            href: "hands-on-exercise/HOE_Wk3.qmd"
+            href: "hands-on-exercise/wk3/HOE_Wk3.qmd"
       - text: "In-class exercise"
         menu: 
           - text: "In-class exercise 1"
