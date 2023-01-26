@@ -8,11 +8,15 @@ website:
       - text: "Hands-on exercise"
         menu: 
           - text: "Hands-on exercise 2"
+            href: "hands-on-exercise/wk2/HOE_Wk2.qmd"
+          - text: "Hands-on exercise 3"
             href: "hands-on-exercise/wk3/HOE_Wk3.qmd"
       - text: "In-class exercise"
         menu: 
-          - text: "In-class exercise 1"
+          - text: "In-class exercise 2"
             href: "in-class-exercise/wk2/wk2/wk2.qmd"
+          - text: "In-class exercise 3"
+            href: "in-class-exercise/wk3/ice_w3.qmd"
     right: 
       - href: index.qmd
         text: Home

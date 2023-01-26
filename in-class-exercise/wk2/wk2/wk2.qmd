@@ -55,7 +55,44 @@ wp_sf <- wp_sf %>%
   st_transform(crs = 26392)
 ```
 
+```{r}
+duplicated_LGA <- NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
+
+duplicated_indices <- which(NGA$ADM2_EN %in% duplicated_LGA)
+
+for (ind in duplicated_indices) {
+  NGA$ADM2_EN[ind] <- paste(NGA$ADM2_EN[ind], NGA$ADM1_EN[ind], sep=", ")
+}
+```
+
 # Calculate proportion of functional to non functional waterpoints
+
+```{r}
+wp_sf_nga <- wp_sf %>%
+  rename(status_clean = '#status_clean') %>%
+  select(status_clean) %>%
+  mutate(status_clean = replace_na(
+    status_clean, "unknown"
+  ))
+```
+
+```{r}
+WP_Functional <- wp_sf_nga %>%
+  filter(status_clean %in%
+           c("Functional",
+             "Functional but not in use,
+             Functional but needs repair"))
+```
+
+```{r}
+wp_nonfunctional <- wp_sf_nga %>%
+  filter(status_clean %in%
+           c("Abandoned/Decommissioned",
+             "Abandoned",
+             "Non-Functional due to dry season",
+             "Non-Functional",
+             "Non functional due to dry season"))
+```
 
 ```{r}
 unique(wp_sf$`#status_clean`)
