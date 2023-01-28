@@ -7,90 +7,6 @@
     "text": "About this site\n\n1 + 1\n\n[1] 2"
   },
   {
-    "objectID": "in-class-exercise/wk2/wk2/wk2.html",
-    "href": "in-class-exercise/wk2/wk2/wk2.html",
-    "title": "In-class Exercise 2",
-    "section": "",
-    "text": "#! code-fold: true\n#! code-summary: \"Show the code\"\npacman::p_load(sf, tidyverse, funModeling)"
-  },
-  {
-    "objectID": "in-class-exercise/wk2/wk2/wk2.html#aspatial-data",
-    "href": "in-class-exercise/wk2/wk2/wk2.html#aspatial-data",
-    "title": "In-class Exercise 2",
-    "section": "Aspatial data",
-    "text": "Aspatial data\n\nwp_nga <- read_csv(\"aspatial/WPdx.csv\") %>%\n  filter(`#clean_country_name` == \"Nigeria\")\nwp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)\nwp_nga\n\n# A tibble: 95,008 × 71\n   row_id `#source`      #lat_…¹ #lon_…² #repo…³ #stat…⁴ #wate…⁵ #wate…⁶ #wate…⁷\n    <dbl> <chr>            <dbl>   <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n 1 429068 GRID3             7.98    5.12 08/29/… Unknown <NA>    <NA>    Tapsta…\n 2 222071 Federal Minis…    6.96    3.60 08/16/… Yes     Boreho… Well    Mechan…\n 3 160612 WaterAid          6.49    7.93 12/04/… Yes     Boreho… Well    Hand P…\n 4 160669 WaterAid          6.73    7.65 12/04/… Yes     Boreho… Well    <NA>   \n 5 160642 WaterAid          6.78    7.66 12/04/… Yes     Boreho… Well    Hand P…\n 6 160628 WaterAid          6.96    7.78 12/04/… Yes     Boreho… Well    Hand P…\n 7 160632 WaterAid          7.02    7.84 12/04/… Yes     Boreho… Well    Hand P…\n 8 642747 Living Water …    7.33    8.98 10/03/… Yes     Boreho… Well    Mechan…\n 9 642456 Living Water …    7.17    9.11 10/03/… Yes     Boreho… Well    Hand P…\n10 641347 Living Water …    7.20    9.22 03/28/… Yes     Boreho… Well    Hand P…\n# … with 94,998 more rows, 62 more variables: `#water_tech_category` <chr>,\n#   `#facility_type` <chr>, `#clean_country_name` <chr>, `#clean_adm1` <chr>,\n#   `#clean_adm2` <chr>, `#clean_adm3` <chr>, `#clean_adm4` <chr>,\n#   `#install_year` <dbl>, `#installer` <chr>, `#rehab_year` <lgl>,\n#   `#rehabilitator` <lgl>, `#management_clean` <chr>, `#status_clean` <chr>,\n#   `#pay` <chr>, `#fecal_coliform_presence` <chr>,\n#   `#fecal_coliform_value` <dbl>, `#subjective_quality` <chr>, …\n\nwp_sf <- st_sf(wp_nga, crs=4326)\nwp_sf\n\nSimple feature collection with 95008 features and 70 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 2.707441 ymin: 4.301812 xmax: 14.21828 ymax: 13.86568\nGeodetic CRS:  WGS 84\n# A tibble: 95,008 × 71\n   row_id `#source`      #lat_…¹ #lon_…² #repo…³ #stat…⁴ #wate…⁵ #wate…⁶ #wate…⁷\n *  <dbl> <chr>            <dbl>   <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n 1 429068 GRID3             7.98    5.12 08/29/… Unknown <NA>    <NA>    Tapsta…\n 2 222071 Federal Minis…    6.96    3.60 08/16/… Yes     Boreho… Well    Mechan…\n 3 160612 WaterAid          6.49    7.93 12/04/… Yes     Boreho… Well    Hand P…\n 4 160669 WaterAid          6.73    7.65 12/04/… Yes     Boreho… Well    <NA>   \n 5 160642 WaterAid          6.78    7.66 12/04/… Yes     Boreho… Well    Hand P…\n 6 160628 WaterAid          6.96    7.78 12/04/… Yes     Boreho… Well    Hand P…\n 7 160632 WaterAid          7.02    7.84 12/04/… Yes     Boreho… Well    Hand P…\n 8 642747 Living Water …    7.33    8.98 10/03/… Yes     Boreho… Well    Mechan…\n 9 642456 Living Water …    7.17    9.11 10/03/… Yes     Boreho… Well    Hand P…\n10 641347 Living Water …    7.20    9.22 03/28/… Yes     Boreho… Well    Hand P…\n# … with 94,998 more rows, 62 more variables: `#water_tech_category` <chr>,\n#   `#facility_type` <chr>, `#clean_country_name` <chr>, `#clean_adm1` <chr>,\n#   `#clean_adm2` <chr>, `#clean_adm3` <chr>, `#clean_adm4` <chr>,\n#   `#install_year` <dbl>, `#installer` <chr>, `#rehab_year` <lgl>,\n#   `#rehabilitator` <lgl>, `#management_clean` <chr>, `#status_clean` <chr>,\n#   `#pay` <chr>, `#fecal_coliform_presence` <chr>,\n#   `#fecal_coliform_value` <dbl>, `#subjective_quality` <chr>, …\n\nwp_sf <- wp_sf %>%\n  st_transform(crs = 26392)"
-  },
-  {
-    "objectID": "in-class-exercise/wk2/wk2/wk2.html#geospatial-data",
-    "href": "in-class-exercise/wk2/wk2/wk2.html#geospatial-data",
-    "title": "In-class Exercise 2",
-    "section": "Geospatial data",
-    "text": "Geospatial data\n\ngeoNGA <- st_read(dsn = \"geospatial\", \n                  layer = \"geoBoundaries-NGA-ADM2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84\n\nNGA <- st_read(\"geospatial\",\n               layer = \"nga_admbnda_adm2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `nga_admbnda_adm2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 16 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ice_w3.html",
-    "href": "in-class-exercise/wk3/ice_w3.html",
-    "title": "In-Class Exercise 3",
-    "section": "",
-    "text": "pacman::p_load(sf, tmap, tidyverse)"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ice_w3.html#loading-in-data",
-    "href": "in-class-exercise/wk3/ice_w3.html#loading-in-data",
-    "title": "In-Class Exercise 3",
-    "section": "Loading in data",
-    "text": "Loading in data\n\nNGA_wp = read_rds(\"data/rds/NGA_wp.rds\")\n\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\",\n          n = 10,\n          style = \"equal\",\n          palette = \"Blues\") + #color scheme\n  tm_borders(lwd = 0.1, #line width\n             alpha = 1) + #opacity/transparency\n  tm_layout(main.title = \"Distribution of functional water points\",\n            legend.outside = FALSE)\n\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\",\n          n = 10,\n          style = \"equal\",\n          palette = \"Blues\") + #color scheme\n  tm_borders(lwd = 0.1, #line width\n             alpha = 1) + #opacity/transparency\n  tm_layout(main.title = \"Distribution of functional water points\",\n            legend.outside = FALSE)\n\n\ntmap_arrange(p2, p1, nrow=1)\n\n\n\n\n\nNGA_wp <- NGA_wp %>%\n  mutate(pct_functional = wp_functional/total_wp) %>%\n  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ICE_Wk3.html",
-    "href": "in-class-exercise/wk3/ICE_Wk3.html",
-    "title": "In-Class Exercise 3",
-    "section": "",
-    "text": "pacman::p_load(sf, tmap, tidyverse)\n\nNGA_wp = read_rds(\"data/rds/NGA_wp.rds\")\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\",\n          n = 10,\n          style = \"equal\",\n          palette = \"Blues\") +\n  tm_borders(lwd = 0.1,\n             alpha = 1) +\n  tm_layout(main.title = \"Distribution of functional water points\",\n            legend.outside = FALSE)\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\",\n          n = 10,\n          style = \"equal\",\n          palette = \"Blues\") +\n  tm_borders(lwd = 0.1,\n             alpha = 1) +\n  tm_layout(main.title = \"Distribution of functional water points\",\n            legend.outside = FALSE)"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ICE_Wk3.html#percentile-map",
-    "href": "in-class-exercise/wk3/ICE_Wk3.html#percentile-map",
-    "title": "In-Class Exercise 3",
-    "section": "Percentile map",
-    "text": "Percentile map"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ICE_Wk3.html#data-preparation",
-    "href": "in-class-exercise/wk3/ICE_Wk3.html#data-preparation",
-    "title": "In-Class Exercise 3",
-    "section": "Data preparation",
-    "text": "Data preparation\n\nNGA_wp <- NGA_wp %>%\n  drop_na()\n\n\npercent <- c(0,0.1,.1,.5,.9,.99,1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL)\nquantile(var[,1],percent)\n\n       0%       10%       10%       50%       90%       99%      100% \n0.0000000 0.2169811 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\n\nget.var <- function(vname, df){\n  v <- df[vname] %>%\n    st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}\n\n\npercentmap <- function(vnam, df, legtitle = NA, mtitle = \"Percentile Map\"){\n  percent <- c(0,.01,.1,.5,.9,.99,1)\n  var <- get.var(vnam, df)\n  bperc <- quantile(var, percent)\n  tm_shape(df) +\n  tm_polygons() +\n  tm_shape(df) +\n    tm_fill(vnam,\n            title = legtitle,\n            breaks = bperc,\n            palette = \"Blues\",\n            labels = c(\"< 1%\", \"1% - 10%\", \"10% - 50%\", \"50% - 90%\", \"90% - 99%\",\"99% >\")) +\n    tm_borders() +\n    tm_layout(main.title = mtitle,\n              title.position = c(\"right\", \"bottom\"))\n}\n\n\npercentmap(\"wp_nonfunctional\", NGA_wp)"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "IS415-GAA",
-    "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ice_w3.html#percentile-map",
-    "href": "in-class-exercise/wk3/ice_w3.html#percentile-map",
-    "title": "In-Class Exercise 3",
-    "section": "Percentile map",
-    "text": "Percentile map\n\nNGA_wp <- NGA_wp %>%\n  drop_na()\n\n\npercent <- c(0, .01, .1, .5, .9, .99, 1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL) #drop all geometric fields\nquantile(var[,1], percent)\n\n       0%        1%       10%       50%       90%       99%      100% \n0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\n\n# function: extract out the data from df where variable name is vname\n# where vname is a name, df is a dataframe)\n# returns vector of values (without a col name\nget.var <- function(vname, df) {\n  v <- df[vname] %>%\n    st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}\n\n\npercentmap <- function(vnam, df, legtitle=NA, mtitle=\"Percentile Map\") {\n  percent <- c(0, .01, .1, .5, .9, .99, 1)\n  var <- get.var(vnam, df)\n  bperc <- quantile(var, percent)\n  tm_shape(df) +\n    tm_polygons() +\n    tm_shape(df) +\n    tm_fill(vnam,\n            title=legtitle,\n            breaks=bperc,\n            palette=\"Blues\",\n            labels=c(\"< 1%\", \"1% - 10%\", \"10% - 50%\", \"50% - 90%\", \"90% - 99%\", \">99%\")) +\n  tm_borders() +\n    tm_layout(main.title = mtitle,\n              title.position = c(\"right\", \"bottom\"),\n              legend.outside = TRUE)\n}\n\n\npercentmap (\"pct_functional\", NGA_wp)"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ice_w3.html#boxplot",
-    "href": "in-class-exercise/wk3/ice_w3.html#boxplot",
-    "title": "In-Class Exercise 3",
-    "section": "Boxplot",
-    "text": "Boxplot\n\nggplot(data = NGA_wp,\n       aes(x = \"\",\n           y = wp_nonfunctional)) +\n  geom_boxplot()"
-  },
-  {
-    "objectID": "in-class-exercise/wk3/ice_w3.html#boxmap",
-    "href": "in-class-exercise/wk3/ice_w3.html#boxmap",
-    "title": "In-Class Exercise 3",
-    "section": "Boxmap",
-    "text": "Boxmap\n\nboxbreaks <- function(v,mult=1.5) {\n  qv <- unname(quantile(v))\n  iqr <- qv[4] - qv[2]\n  upfence <- qv[4] + mult * iqr\n  lofence <- qv[2] - mult * iqr\n  # initialize break points vector\n  bb <- vector(mode=\"numeric\",length=7)\n  # logic for lower and upper fences\n  if (lofence < qv[1]) {  # no lower outliers\n    bb[1] <- lofence\n    bb[2] <- floor(qv[1])\n  } else {\n    bb[2] <- lofence\n    bb[1] <- qv[1]\n  }\n  if (upfence > qv[5]) { # no upper outliers\n    bb[7] <- upfence\n    bb[6] <- ceiling(qv[5])\n  } else {\n    bb[6] <- upfence\n    bb[7] <- qv[5]\n  }\n  bb[3:5] <- qv[2:4]\n  return(bb)\n}\n\n\n#Function to extract variable as vector out of an sf dataframe\nget.var <- function(vname,df) {\n  v <- df[vname] %>% st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}\n\n\nvar <- get.var(\"wp_nonfunctional\", NGA_wp) \nboxbreaks(var)\n\n[1] -56.5   0.0  14.0  34.0  61.0 131.5 278.0\n\n\n\nBoxmap function\n\nboxmap <- function(vnam, df, \n                   legtitle=NA,\n                   mtitle=\"Box Map\",\n                   mult=1.5){\n  var <- get.var(vnam,df)\n  bb <- boxbreaks(var)\n  tm_shape(df) +\n    tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,title=legtitle,\n             breaks=bb,\n             palette=\"Blues\",\n          labels = c(\"lower outlier\", \n                     \"< 25%\", \n                     \"25% - 50%\", \n                     \"50% - 75%\",\n                     \"> 75%\", \n                     \"upper outlier\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"left\",\n                               \"top\"))\n}\n\n\ntmap_mode(\"plot\")\nboxmap(\"wp_nonfunctional\", NGA_wp)\n\n\n\n\n\n#Recodes LGA with 0 water points into NA\nNGA_wp <- NGA_wp %>%\n  mutate(wp_functional = na_if(\n    total_wp, total_wp < 0))"
-  },
-  {
     "objectID": "hands-on-exercise/wk3/HOE_Wk3.html",
     "href": "hands-on-exercise/wk3/HOE_Wk3.html",
     "title": "Hands-On Exercise 3",
@@ -137,7 +53,7 @@
     "href": "hands-on-exercise/wk4/HOE_wk4.html#converting-spatial-into-generic-sp-format",
     "title": "Hands-On Exercise 4",
     "section": "Converting spatial into generic sp format",
-    "text": "Converting spatial into generic sp format\n\nchildcare_sp <- as(childcare, \"SpatialPoints\")\nsg_sp <- as(sg, \"SpatialPolygons\")\n\n\nchildcare_sp\n\nclass       : SpatialPoints \nfeatures    : 1545 \nextent      : 11203.01, 45404.24, 25667.6, 49300.88  (xmin, xmax, ymin, ymax)\ncrs         : +proj=tmerc +lat_0=1.36666666666667 +lon_0=103.833333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs \n\n\n\nsg_sp\n\nclass       : SpatialPolygons \nfeatures    : 60 \nextent      : 2663.926, 56047.79, 16357.98, 50244.03  (xmin, xmax, ymin, ymax)\ncrs         : NA"
+    "text": "Converting spatial into generic sp format\n\nchildcare_sp <- as(childcare, \"SpatialPoints\")\nsg_sp <- as(sg, \"SpatialPolygons\")\n\n\nchildcare_sp\n\nclass       : SpatialPoints \nfeatures    : 1545 \nextent      : 11203.01, 45404.24, 25667.6, 49300.88  (xmin, xmax, ymin, ymax)\ncrs         : +proj=tmerc +lat_0=1.36666666666667 +lon_0=103.833333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs \n\n\n\nsg_sp\n\nclass       : SpatialPolygons \nfeatures    : 60 \nextent      : 2663.926, 56047.79, 16357.98, 50244.03  (xmin, xmax, ymin, ymax)\ncrs         : +proj=tmerc +lat_0=1.36666666666667 +lon_0=103.833333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +datum=WGS84 +units=m +no_defs"
   },
   {
     "objectID": "hands-on-exercise/wk4/HOE_wk4.html#generic-sp-format-into-spatstat-ppp-format",
@@ -186,13 +102,76 @@
     "href": "hands-on-exercise/wk4/HOE_wk4.html#clark-and-evans-test-choa-chu-kang-planning-area",
     "title": "Hands-On Exercise 4",
     "section": "Clark and Evans Test: Choa Chu Kang planning area",
-    "text": "Clark and Evans Test: Choa Chu Kang planning area\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.88856, p-value = 0.032\nalternative hypothesis: two-sided"
+    "text": "Clark and Evans Test: Choa Chu Kang planning area\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.9619, p-value = 0.176\nalternative hypothesis: two-sided"
   },
   {
     "objectID": "hands-on-exercise/wk4/HOE_wk4.html#section",
     "href": "hands-on-exercise/wk4/HOE_wk4.html#section",
     "title": "Hands-On Exercise 4",
     "section": "",
-    "text": "Clark and Evans Test: Tampines planning area\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.80451, p-value = 0.002\nalternative hypothesis: two-sided"
+    "text": "Clark and Evans Test: Tampines planning area\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.80612, p-value = 0.002\nalternative hypothesis: two-sided"
+  },
+  {
+    "objectID": "in-class-exercise/wk2/wk2/wk2.html",
+    "href": "in-class-exercise/wk2/wk2/wk2.html",
+    "title": "In-class Exercise 2",
+    "section": "",
+    "text": "#! code-fold: true\n#! code-summary: \"Show the code\"\npacman::p_load(sf, tidyverse, funModeling)"
+  },
+  {
+    "objectID": "in-class-exercise/wk2/wk2/wk2.html#aspatial-data",
+    "href": "in-class-exercise/wk2/wk2/wk2.html#aspatial-data",
+    "title": "In-class Exercise 2",
+    "section": "Aspatial data",
+    "text": "Aspatial data\n\nwp_nga <- read_csv(\"aspatial/WPdx.csv\") %>%\n  filter(`#clean_country_name` == \"Nigeria\")\nwp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)\nwp_nga\n\n# A tibble: 95,008 × 71\n   row_id `#source`      #lat_…¹ #lon_…² #repo…³ #stat…⁴ #wate…⁵ #wate…⁶ #wate…⁷\n    <dbl> <chr>            <dbl>   <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n 1 429068 GRID3             7.98    5.12 08/29/… Unknown <NA>    <NA>    Tapsta…\n 2 222071 Federal Minis…    6.96    3.60 08/16/… Yes     Boreho… Well    Mechan…\n 3 160612 WaterAid          6.49    7.93 12/04/… Yes     Boreho… Well    Hand P…\n 4 160669 WaterAid          6.73    7.65 12/04/… Yes     Boreho… Well    <NA>   \n 5 160642 WaterAid          6.78    7.66 12/04/… Yes     Boreho… Well    Hand P…\n 6 160628 WaterAid          6.96    7.78 12/04/… Yes     Boreho… Well    Hand P…\n 7 160632 WaterAid          7.02    7.84 12/04/… Yes     Boreho… Well    Hand P…\n 8 642747 Living Water …    7.33    8.98 10/03/… Yes     Boreho… Well    Mechan…\n 9 642456 Living Water …    7.17    9.11 10/03/… Yes     Boreho… Well    Hand P…\n10 641347 Living Water …    7.20    9.22 03/28/… Yes     Boreho… Well    Hand P…\n# … with 94,998 more rows, 62 more variables: `#water_tech_category` <chr>,\n#   `#facility_type` <chr>, `#clean_country_name` <chr>, `#clean_adm1` <chr>,\n#   `#clean_adm2` <chr>, `#clean_adm3` <chr>, `#clean_adm4` <chr>,\n#   `#install_year` <dbl>, `#installer` <chr>, `#rehab_year` <lgl>,\n#   `#rehabilitator` <lgl>, `#management_clean` <chr>, `#status_clean` <chr>,\n#   `#pay` <chr>, `#fecal_coliform_presence` <chr>,\n#   `#fecal_coliform_value` <dbl>, `#subjective_quality` <chr>, …\n\nwp_sf <- st_sf(wp_nga, crs=4326)\nwp_sf\n\nSimple feature collection with 95008 features and 70 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 2.707441 ymin: 4.301812 xmax: 14.21828 ymax: 13.86568\nGeodetic CRS:  WGS 84\n# A tibble: 95,008 × 71\n   row_id `#source`      #lat_…¹ #lon_…² #repo…³ #stat…⁴ #wate…⁵ #wate…⁶ #wate…⁷\n *  <dbl> <chr>            <dbl>   <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n 1 429068 GRID3             7.98    5.12 08/29/… Unknown <NA>    <NA>    Tapsta…\n 2 222071 Federal Minis…    6.96    3.60 08/16/… Yes     Boreho… Well    Mechan…\n 3 160612 WaterAid          6.49    7.93 12/04/… Yes     Boreho… Well    Hand P…\n 4 160669 WaterAid          6.73    7.65 12/04/… Yes     Boreho… Well    <NA>   \n 5 160642 WaterAid          6.78    7.66 12/04/… Yes     Boreho… Well    Hand P…\n 6 160628 WaterAid          6.96    7.78 12/04/… Yes     Boreho… Well    Hand P…\n 7 160632 WaterAid          7.02    7.84 12/04/… Yes     Boreho… Well    Hand P…\n 8 642747 Living Water …    7.33    8.98 10/03/… Yes     Boreho… Well    Mechan…\n 9 642456 Living Water …    7.17    9.11 10/03/… Yes     Boreho… Well    Hand P…\n10 641347 Living Water …    7.20    9.22 03/28/… Yes     Boreho… Well    Hand P…\n# … with 94,998 more rows, 62 more variables: `#water_tech_category` <chr>,\n#   `#facility_type` <chr>, `#clean_country_name` <chr>, `#clean_adm1` <chr>,\n#   `#clean_adm2` <chr>, `#clean_adm3` <chr>, `#clean_adm4` <chr>,\n#   `#install_year` <dbl>, `#installer` <chr>, `#rehab_year` <lgl>,\n#   `#rehabilitator` <lgl>, `#management_clean` <chr>, `#status_clean` <chr>,\n#   `#pay` <chr>, `#fecal_coliform_presence` <chr>,\n#   `#fecal_coliform_value` <dbl>, `#subjective_quality` <chr>, …\n\nwp_sf <- wp_sf %>%\n  st_transform(crs = 26392)"
+  },
+  {
+    "objectID": "in-class-exercise/wk2/wk2/wk2.html#geospatial-data",
+    "href": "in-class-exercise/wk2/wk2/wk2.html#geospatial-data",
+    "title": "In-class Exercise 2",
+    "section": "Geospatial data",
+    "text": "Geospatial data\n\ngeoNGA <- st_read(dsn = \"geospatial\", \n                  layer = \"geoBoundaries-NGA-ADM2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 5 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84\n\nNGA <- st_read(\"geospatial\",\n               layer = \"nga_admbnda_adm2\")%>%\n  st_transform(crs = 26392)\n\nReading layer `nga_admbnda_adm2' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk2\\wk2\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 16 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "in-class-exercise/wk3/ice_w3.html",
+    "href": "in-class-exercise/wk3/ice_w3.html",
+    "title": "In-Class Exercise 3",
+    "section": "",
+    "text": "pacman::p_load(sf, tmap, tidyverse)"
+  },
+  {
+    "objectID": "in-class-exercise/wk3/ice_w3.html#loading-in-data",
+    "href": "in-class-exercise/wk3/ice_w3.html#loading-in-data",
+    "title": "In-Class Exercise 3",
+    "section": "Loading in data",
+    "text": "Loading in data\n\nNGA_wp = read_rds(\"data/rds/NGA_wp.rds\")\n\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\",\n          n = 10,\n          style = \"equal\",\n          palette = \"Blues\") + #color scheme\n  tm_borders(lwd = 0.1, #line width\n             alpha = 1) + #opacity/transparency\n  tm_layout(main.title = \"Distribution of functional water points\",\n            legend.outside = FALSE)\n\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\",\n          n = 10,\n          style = \"equal\",\n          palette = \"Blues\") + #color scheme\n  tm_borders(lwd = 0.1, #line width\n             alpha = 1) + #opacity/transparency\n  tm_layout(main.title = \"Distribution of functional water points\",\n            legend.outside = FALSE)\n\n\ntmap_arrange(p2, p1, nrow=1)\n\n\n\n\n\nNGA_wp <- NGA_wp %>%\n  mutate(pct_functional = wp_functional/total_wp) %>%\n  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)"
+  },
+  {
+    "objectID": "in-class-exercise/wk3/ice_w3.html#percentile-map",
+    "href": "in-class-exercise/wk3/ice_w3.html#percentile-map",
+    "title": "In-Class Exercise 3",
+    "section": "Percentile map",
+    "text": "Percentile map\n\nNGA_wp <- NGA_wp %>%\n  drop_na()\n\n\npercent <- c(0, .01, .1, .5, .9, .99, 1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL) #drop all geometric fields\nquantile(var[,1], percent)\n\n       0%        1%       10%       50%       90%       99%      100% \n0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\n\n# function: extract out the data from df where variable name is vname\n# where vname is a name, df is a dataframe)\n# returns vector of values (without a col name\nget.var <- function(vname, df) {\n  v <- df[vname] %>%\n    st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}\n\n\npercentmap <- function(vnam, df, legtitle=NA, mtitle=\"Percentile Map\") {\n  percent <- c(0, .01, .1, .5, .9, .99, 1)\n  var <- get.var(vnam, df)\n  bperc <- quantile(var, percent)\n  tm_shape(df) +\n    tm_polygons() +\n    tm_shape(df) +\n    tm_fill(vnam,\n            title=legtitle,\n            breaks=bperc,\n            palette=\"Blues\",\n            labels=c(\"< 1%\", \"1% - 10%\", \"10% - 50%\", \"50% - 90%\", \"90% - 99%\", \">99%\")) +\n  tm_borders() +\n    tm_layout(main.title = mtitle,\n              title.position = c(\"right\", \"bottom\"),\n              legend.outside = TRUE)\n}\n\n\npercentmap (\"pct_functional\", NGA_wp)"
+  },
+  {
+    "objectID": "in-class-exercise/wk3/ice_w3.html#boxplot",
+    "href": "in-class-exercise/wk3/ice_w3.html#boxplot",
+    "title": "In-Class Exercise 3",
+    "section": "Boxplot",
+    "text": "Boxplot\n\nggplot(data = NGA_wp,\n       aes(x = \"\",\n           y = wp_nonfunctional)) +\n  geom_boxplot()"
+  },
+  {
+    "objectID": "in-class-exercise/wk3/ice_w3.html#boxmap",
+    "href": "in-class-exercise/wk3/ice_w3.html#boxmap",
+    "title": "In-Class Exercise 3",
+    "section": "Boxmap",
+    "text": "Boxmap\n\nboxbreaks <- function(v,mult=1.5) {\n  qv <- unname(quantile(v))\n  iqr <- qv[4] - qv[2]\n  upfence <- qv[4] + mult * iqr\n  lofence <- qv[2] - mult * iqr\n  # initialize break points vector\n  bb <- vector(mode=\"numeric\",length=7)\n  # logic for lower and upper fences\n  if (lofence < qv[1]) {  # no lower outliers\n    bb[1] <- lofence\n    bb[2] <- floor(qv[1])\n  } else {\n    bb[2] <- lofence\n    bb[1] <- qv[1]\n  }\n  if (upfence > qv[5]) { # no upper outliers\n    bb[7] <- upfence\n    bb[6] <- ceiling(qv[5])\n  } else {\n    bb[6] <- upfence\n    bb[7] <- qv[5]\n  }\n  bb[3:5] <- qv[2:4]\n  return(bb)\n}\n\n\n#Function to extract variable as vector out of an sf dataframe\nget.var <- function(vname,df) {\n  v <- df[vname] %>% st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}\n\n\nvar <- get.var(\"wp_nonfunctional\", NGA_wp) \nboxbreaks(var)\n\n[1] -56.5   0.0  14.0  34.0  61.0 131.5 278.0\n\n\n\nBoxmap function\n\nboxmap <- function(vnam, df, \n                   legtitle=NA,\n                   mtitle=\"Box Map\",\n                   mult=1.5){\n  var <- get.var(vnam,df)\n  bb <- boxbreaks(var)\n  tm_shape(df) +\n    tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,title=legtitle,\n             breaks=bb,\n             palette=\"Blues\",\n          labels = c(\"lower outlier\", \n                     \"< 25%\", \n                     \"25% - 50%\", \n                     \"50% - 75%\",\n                     \"> 75%\", \n                     \"upper outlier\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"left\",\n                               \"top\"))\n}\n\n\ntmap_mode(\"plot\")\nboxmap(\"wp_nonfunctional\", NGA_wp)\n\n\n\n\n\n#Recodes LGA with 0 water points into NA\nNGA_wp <- NGA_wp %>%\n  mutate(wp_functional = na_if(\n    total_wp, total_wp < 0))"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IS415-GAA",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
   }
 ]
