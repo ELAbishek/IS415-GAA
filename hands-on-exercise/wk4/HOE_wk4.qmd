@@ -1,5 +1,6 @@
 ---
 title: Hands-On Exercise 4
+subtitle: In class exercise 4
 date: "`r Sys.Date()`"
 format: html
 execute: 
