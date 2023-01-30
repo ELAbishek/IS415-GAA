@@ -508,9 +508,8 @@ plot(F_CK.csr)
 
 ### Computing F-function estimate
 
-```{=tex}
 Monte carlo test with F-function
-```
+
 ```{r}
 F_tm = Fest(childcare_tm_ppp, correction = "best")
 plot(F_tm)
@@ -526,7 +525,7 @@ F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
 plot(F_tm.csr)
 ```
 
-# Analyzing spatial point process  using K-function
+# Analyzing spatial point process using K-function
 
 ## Choa chu kang planning area
 
@@ -593,7 +592,7 @@ plot(L_ck.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 
 ## Tampines planning area
 
-### Computing L-function  estimate
+### Computing L-function estimate
 
 ```{r}
 L_tm = Lest(childcare_tm_ppp, correction = "Ripley")
