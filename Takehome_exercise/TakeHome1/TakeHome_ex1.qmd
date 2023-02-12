@@ -1,0 +1,585 @@
+---
+title: Take home assignment 1
+date: "January 30, 2023"
+date modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: false
+  warning: false
+editor: visual
+---
+
+# Intro
+
+Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world\'s accessible freshwater.
+
+Developing countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.
+
+## Objectives
+
+### Exploratory Spatial Data Analysis (ESDA)
+
+-   Derive kernel density maps of functional and non-functional water points. Using appropriate tmap functions
+
+-   Display the kernel density maps on openstreetmap of Osub State, Nigeria.
+
+-   Describe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.
+
+### Second-order Spatial Point Patterns Analysis
+
+With reference to the spatial point patterns observed in ESDA:
+
+-   Formulate the null hypothesis and alternative hypothesis and select the confidence level.
+
+-   Perform the test by using appropriate Second order spatial point patterns analysis technique.
+
+-   With reference to the analysis results, draw statistical conclusions.
+
+### Spatial Correlation Analysis
+
+In this section, you are required to confirm statistically if the spatial distribution of functional and non-functional water points are independent from each other.
+
+-   Formulate the null hypothesis and alternative hypothesis and select the confidence level.
+
+-   Perform the test by using appropriate Second order spatial point patterns analysis technique.
+
+-   With reference to the analysis results, draw statistical conclusions.
+
+## Importing packages
+
+```{r}
+pacman::p_load(sf, tidyverse, tmap, maptools, raster, spatstat, sfdep)
+```
+
+## Data wrangling
+
+### Import Aspatial data
+
+First we take the Wpdx dataset and filter out to get only one country data: Nigeria, then filter out to get only one state: Osun
+
+```{r}
+wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
+  filter(`#clean_country_name` == "Nigeria", `#clean_adm1` == "Osun")
+```
+
+### Import Geospatial data
+
+```{r}
+geoNGA <- st_read(dsn = "data/geospatial", 
+                  layer = "geoBoundaries-NGA-ADM2")%>%
+  
+  st_transform(crs = 26392)
+```
+
+Now we take the geospatial dataset and we filter out to get only the data from Osun state
+
+```{r}
+NGA <- st_read("data/geospatial",
+               layer = "nga_admbnda_adm2")%>%
+  filter(`ADM1_EN` == "Osun")%>%
+  st_transform(crs = 26392)
+```
+
+# Data pre processing
+
+## Convert Aspatial data into Geospatial
+
+```{r}
+wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
+glimpse(wp_nga)
+```
+
+```{r}
+wp_sf <- st_sf(wp_nga, crs=4326)
+wp_sf
+```
+
+### Projection transformation
+
+We then transform the dataset into appropriate crs = 26392 so that we can perform our further analysis
+
+```{r}
+wp_sf <- wp_sf %>%
+  st_transform(crs = 26392)
+```
+
+### Selecting necessary columns
+
+There is no need for the other columns, so we are taking just the column we need, just to make things faster in the long run
+
+```{r}
+NGA <- NGA %>%
+ dplyr::select(c(3:4, 8:9)) #adm1 and adm2 cols
+```
+
+### Cleaning duplicate data
+
+```{r}
+NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
+```
+
+```{r}
+duplicated_LGA <- NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
+
+duplicated_indices <- which(NGA$ADM2_EN %in% duplicated_LGA)
+
+for (ind in duplicated_indices) {
+  NGA$ADM2_EN[ind] <- paste(NGA$ADM2_EN[ind], NGA$ADM1_EN[ind], sep=", ")
+}
+```
+
+Now that we have assurance that the data does not have any duplicate data, we may proceed with data wrangling
+
+## Data wrangling
+
+```{r}
+#Replacing records where the status column is empty with "unknown" to prevent errors in the future
+wp_sf <- wp_sf %>%
+  rename(status_clean = '#status_clean') %>%
+  dplyr::select(status_clean) %>%
+  mutate(status_clean = replace_na(
+    status_clean, "unknown"
+  ))
+```
+
+```{r}
+wp_sf_osun <- wp_sf %>%
+  mutate(`func_status` = case_when(
+    `status_clean` %in% c("Functional", 
+                          "Functional but not in use",
+                          "Functional but needs repair") ~ 
+      "Functional",
+    `status_clean` %in% c("Abandoned/Decommissioned",
+                               "Non-Functional due to dry season",
+                               "Non-Functional",
+                               "Abandoned",
+                               "Non functional due to dry season") ~ 
+      "Non-Functional",
+    `status_clean` == "Unknown" ~ "Unknown"))
+```
+
+#### Separating functional and non functional waterpoints
+
+Separating out and obtaining functional and non functional waterpoints
+
+```{r}
+wp_functional <- wp_sf_osun %>%
+  filter(status_clean %in%
+           c("Functional",
+             "Functional but not in use",
+             "Functional but needs repair"))
+```
+
+```{r}
+wp_nonfunctional <- wp_sf_osun %>%
+  filter(status_clean %in%
+           c("Abandoned/Decommissioned",
+             "Abandoned",
+             "Non-Functional due to dry season",
+             "Non-Functional",
+             "Non functional due to dry season"))
+```
+
+```{r}
+wp_unknown_sf <- wp_sf_osun %>% filter(`status_clean` %in% 
+                                     c("unknown"))
+```
+
+```{r}
+NGA_wp_sf <- NGA %>%
+  mutate(`total_wp` = lengths(
+    st_intersects(NGA, wp_sf_osun)
+  )) %>%
+  mutate(`wp_functional` = lengths(
+    st_intersects(NGA, wp_functional)
+  )) %>%
+  mutate(`wp_nonfunctional` = lengths(
+    st_intersects(NGA, wp_nonfunctional)
+  )) %>%
+  mutate(`wp_unknown_sf` = lengths(
+    st_intersects(NGA, wp_unknown_sf)
+  ))
+```
+
+```{r}
+glimpse(NGA)
+```
+
+# Kernel Density Estimation
+
+```{r}
+NG <- as_Spatial(NGA)
+wpf <- as_Spatial(wp_functional)
+wpnf <- as_Spatial(wp_nonfunctional)
+```
+
+#### Converting to sp
+
+```{r}
+NG_sp <- as(NG, "SpatialPolygons")
+wpf_sp <- as(wpf,"SpatialPoints")
+wpnf_sp <- as(wpnf, "SpatialPoints")
+```
+
+#### Creationg of owin object
+
+```{r}
+NG_owin <- as(NG_sp, "owin")
+```
+
+#### Converting sp to ppp object
+
+```{r}
+wpf_ppp <- as(wpf_sp, "ppp")
+wpnf_ppp <- as(wpnf_sp, "ppp")
+```
+
+```{r}
+plot(wpf_ppp)
+plot(wpnf_ppp)
+```
+
+```{r}
+wpf_ppp = wpf_ppp[NG_owin]
+wpnf_ppp = wpnf_ppp[NG_owin]
+```
+
+```{r}
+plot(wpf_ppp)
+plot(wpnf_ppp)
+```
+
+### Checking for duplicate values
+
+```{r}
+any(duplicated(wpf_ppp)) 
+any(duplicated(wpnf_ppp)) 
+```
+
+Since no duplicate values were detected, we can proceed with the plotting as per normal
+
+```{r}
+NGAf_bw <- density(wpf_ppp,
+                              sigma=bw.ppl,
+                              edge=TRUE,
+                            kernel="gaussian") 
+NGAnf_bw <- density(wpnf_ppp,
+                              sigma=bw.ppl,
+                              edge=TRUE,
+                            kernel="gaussian")
+```
+
+Scaling of the ppp so that we can get accurate mapping that is consistent
+
+```{r}
+wpf_ppp.km <- rescale(wpf_ppp, 1000, "km")
+wpnf_ppp.km <- rescale(wpnf_ppp, 1000, "km")
+```
+
+```{r}
+bw <- bw.ppl(wpf_ppp)
+bw
+bw <- bw.ppl(wpnf_ppp)
+bw
+```
+
+```{r}
+NGAf.bw <- density(wpf_ppp.km, sigma=bw.ppl, edge=TRUE, kernel="gaussian")
+NGAnf.bw <- density(wpnf_ppp.km, sigma=bw.ppl, edge=TRUE, kernel="gaussian")
+
+plot(NGAnf.bw)
+plot(NGAf.bw)
+```
+
+### Converting KDE into grid object
+
+```{r}
+gridded_NGAf_bw <- as.SpatialGridDataFrame.im(NGAf.bw)
+spplot(gridded_NGAf_bw)
+
+gridded_NGAnf_bw <- as.SpatialGridDataFrame.im(NGAnf.bw)
+spplot(gridded_NGAnf_bw)
+```
+
+### Converting gridded output into raster
+
+```{r}
+NGAf_bw_raster <- raster(gridded_NGAf_bw)
+
+NGAnf_bw_raster <- raster(gridded_NGAnf_bw)
+```
+
+```{r}
+NGAf_bw_raster
+
+```
+
+```{r}
+NGAnf_bw_raster
+```
+
+```{r}
+projection(NGAf_bw_raster) <- CRS("+init=EPSG:26392 +units=km")
+NGAf_bw_raster
+```
+
+```{r}
+projection(NGAnf_bw_raster) <- CRS("+init=EPSG:26392 +units=km")
+NGAnf_bw_raster
+```
+
+### KDE on open street map
+
+#### Plotting KDE for functional waterpoints
+
+```{r}
+tmap_mode('view')+ #Functional KDE
+  tm_shape(NGAf_bw_raster) + 
+  tm_raster("v", palette = "YlOrBr") +
+  tm_basemap("OpenStreetMap") +
+  tm_layout(legend.position = c("right", "bottom"), frame = FALSE)
+
+```
+
+```{r}
+kde_func <- tm_shape(NGAf_bw_raster) + 
+  tm_raster("v", palette = "YlOrBr", title="") +
+  tm_layout(
+    legend.position = c("right", "bottom"), 
+    main.title = "Functional",
+    frame = FALSE
+  )
+
+kde_func +
+  tm_shape(NGA) +
+  tm_borders() +
+  tm_text("ADM2_EN", size = 0.6) 
+
+
+```
+
+#### Plotting KDE for non functional waterpoints
+
+```{r}
+tmap_mode('view')+ #Non-functional KDE
+  tm_shape(NGAnf_bw_raster) +
+  tm_raster("v", alpha = 0.75, palette = "YlGnBu") +
+  tm_basemap("OpenStreetMap") +
+  tm_layout(legend.position = c("right", "bottom"), frame = FALSE)
+```
+
+```{r}
+kde_nonfunc <- tm_shape(NGAnf_bw_raster) + 
+  tm_raster("v", palette = "YlGnBu", title="") +
+  tm_layout(
+    legend.position = c("right", "bottom"), 
+    main.title = "Non-Functional",
+    frame = FALSE
+  )
+
+kde_nonfunc +
+  tm_shape(NGA) +
+  tm_borders() +
+  tm_text("ADM2_EN", size = 0.6)
+```
+
+## Analysis
+
+From the KDE plots done above we can see that there is a huge disparity in terms of the concentration of functional to nonfunctional waterpoints in the different LGAs of Osun state. There is a higher number of water points in the Northern parts of the state, but in that, the North Western LGAs have a higher concentration of Functional waterpoints, such as Ife North, Ejigbo, and Iwo. While the North Easter LGAs have a higher concentration of non functional water points, such as in LGAs like Osogobo, Irepodun, Boripe. Ife Central also has a really high concentration of non functional waterpoints in its Southern section.
+
+# Second order spatial point analysis
+
+In order to perform second order spatial point analysis, in this case we are creating owin objects of some LGAs within Osun for observation
+
+```{r}
+#Functional water points
+IfeCentralowin <- NGA[NGA$ADM2_EN == "Ife Central",] %>%
+    as('Spatial') %>%
+    as('SpatialPolygons') %>%
+    as('owin')
+
+Ejigboowin <- NGA[NGA$ADM2_EN == "Ejigbo",] %>%
+    as('Spatial') %>%
+    as('SpatialPolygons') %>%
+    as('owin')
+
+#non functional points
+EdeNorthowin <- NGA[NGA$ADM2_EN == "Ede North",] %>%
+    as('Spatial') %>%
+    as('SpatialPolygons') %>%
+    as('owin')
+
+EdeSouthowin <- NGA[NGA$ADM2_EN == "Ede South",] %>%
+    as('Spatial') %>%
+    as('SpatialPolygons') %>%
+    as('owin')
+
+plot(IfeCentralowin)
+plot(Ejigboowin)
+plot(EdeNorthowin)
+plot(EdeSouthowin)
+```
+
+```{r}
+IfeCentralowin_ppp <- wpf_ppp[IfeCentralowin]
+Ejigboowin_ppp <- wpf_ppp[Ejigboowin]
+EdeNorthowin_ppp <- wpnf_ppp[EdeNorthowin]
+EdeSouthowin_ppp <- wpnf_ppp[EdeSouthowin]
+```
+
+```{r}
+plot(IfeCentralowin_ppp)
+plot(Ejigboowin_ppp)
+plot(EdeNorthowin_ppp)
+plot(EdeSouthowin_ppp)
+```
+
+Now that we have the owin objects with the functional and non functional water points plotted in them, we can start off by plotting the G function
+
+## Plotting G function for functional waterpoints
+
+```{r}
+IfecentralFuncG = Gest(IfeCentralowin_ppp, correction = "border")
+plot(IfecentralFuncG)
+```
+
+#### Spatial randomness test
+
+```{r}
+IfecentralFunc.csr <- envelope(IfeCentralowin_ppp, Gest, nsim=100)
+```
+
+```{r}
+plot(IfecentralFunc.csr)
+```
+
+```{r}
+EjigboFuncG = Gest(Ejigboowin_ppp, correction = "border")
+plot(EjigboFuncG)
+```
+
+```{r}
+EjigboFunc.csr <- envelope(Ejigboowin_ppp, Gest, nsim=100)
+```
+
+```{r}
+plot(EjigboFunc.csr)
+```
+
+### Analysis
+
+In both of the spatial randomness tests for functional waterpoints in the regions of Ife Central, and Ejigbo, we can see that the G(r) is significantly above both G(theo) and the envelope, indicating the functional waterpoints are clustered.Hence we reject the null hypothesis that functional waterpoints are randomly distributed with a 99% confidence
+
+## Plotting G function for non-functional waterpoints
+
+```{r}
+EdNorthNonFuncG = Gest(EdeNorthowin_ppp, correction = "border")
+plot(EdNorthNonFuncG)
+```
+
+```{r}
+EdNorthNonFunc.csr <- envelope(EdeNorthowin_ppp, Gest, nsim=100)
+```
+
+```{r}
+plot(EdNorthNonFunc.csr)
+```
+
+```{r}
+EdSouthNonFuncG = Gest(EdeSouthowin_ppp, correction = "border")
+plot(EdSouthNonFuncG)
+```
+
+```{r}
+EdSouthNonFunc.csr <- envelope(EdeSouthowin_ppp, Gest, nsim=100)
+```
+
+```{r}
+plot(EdSouthNonFunc.csr)
+```
+
+In both of the spatial randomness tests for functional waterpoints in the regions of Ede North, and Ede South, we can see that the G(r) is significantly above both G(theo) and the envelope, indicating the non functional waterpoints are clustered.Hence we reject the null hypothesis that functional waterpoints are randomly distributed with a 99% confidence
+
+# Spatial correlation analysis
+
+## Local Colocation Quotients (LCLQ)
+
+```{r}
+wp_sf_osun_kp <- wp_sf_osun %>%
+  filter(`func_status` %in% c("Functional", "Non-Functional"))
+```
+
+```{r}
+functional_points <- wp_sf_osun_kp %>%
+  filter(`func_status` == "Functional") %>%
+  dplyr::pull(`func_status`)
+
+nonfunctional_points <- wp_sf_osun_kp %>%
+  filter(`func_status` == "Non-Functional") %>%
+  dplyr::pull(`func_status`)
+```
+
+### Nearest neighbours
+
+```{r}
+nb <- include_self(
+  st_knn(st_geometry(wp_sf_osun_kp),6))
+```
+
+### Weight matrix
+
+```{r}
+wt <- st_kernel_weights(nb,
+                        wp_sf_osun_kp,
+                        "gaussian",
+                        adaptive = TRUE)
+```
+
+### CoLocation Quotient (LCLQ)
+
+```{r}
+LCLQc <- local_colocation(functional_points,
+                         nonfunctional_points,
+                         nb,
+                         wt,
+                         39)
+```
+
+```{r}
+LCLQ_waterpoints <- cbind(wp_sf_osun_kp, LCLQc)
+```
+
+```{r}
+LCLQ_waterpoints <- LCLQ_waterpoints %>% 
+  mutate(
+    `p_sim_Non.Functional` = replace(`p_sim_Non.Functional`, `p_sim_Non.Functional` > 0.05, NA),
+    `Non.Functional` = ifelse(`p_sim_Non.Functional` > 0.05, NA, `Non.Functional`))
+
+LCLQ_waterpoints <- LCLQ_waterpoints %>% mutate(`size` = ifelse(is.na(`Non.Functional`), 1, 5))
+```
+
+## Analysis
+
+```{r}
+tmap_mode('view')
+tm_view(set.zoom.limits=c(9, 15),
+        bbox = st_bbox(filter(LCLQ_waterpoints, !is.na(`Non.Functional`)))) +
+  tm_shape(NGA) +
+  tm_borders() +
+  tm_shape(LCLQ_waterpoints) +
+  tm_dots(col="Non.Functional",
+          palette=c("cyan", "grey"),
+          size = "size",
+          scale=0.15,
+          border.col = "black",
+          border.lwd = 0.5,
+          alpha=0.5,
+          title="LCLQ"
+          )
+```
+
+In general the LCLQ value is just slightly less than 1 for statstically significant LCLQ (i.e: p value is \< 0.05) . This shows that for a functional waterpoint it is less likely to have a non functional waterpoint in its neighbourhood. This proportion represents the waterpoints proportion across Osun very well.
+
+```{r}
+tmap_mode('plot')
+```

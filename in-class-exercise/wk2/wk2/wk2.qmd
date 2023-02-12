@@ -17,7 +17,7 @@ pacman::p_load(sf, tidyverse, funModeling)
 ## Aspatial data
 
 ```{r}
-wp_nga <- read_csv("aspatial/WPdx.csv") %>%
+wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
   filter(`#clean_country_name` == "Nigeria")
 wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
 wp_nga
@@ -30,10 +30,10 @@ wp_sf <- wp_sf %>%
 ## Geospatial data
 
 ```{r}
-geoNGA <- st_read(dsn = "geospatial", 
+geoNGA <- st_read(dsn = "data/geospatial", 
                   layer = "geoBoundaries-NGA-ADM2")%>%
   st_transform(crs = 26392)
-NGA <- st_read("geospatial",
+NGA <- st_read("data/geospatial",
                layer = "nga_admbnda_adm2")%>%
   st_transform(crs = 26392)
 ```

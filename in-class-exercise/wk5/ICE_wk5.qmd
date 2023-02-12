@@ -1,0 +1,134 @@
+---
+title: In-class exercise 5
+date: "`r Sys.Date()`"
+format: html
+execute: 
+  message: false
+  warning: false
+editor: visual
+---
+
+### Importing packages
+
+```{r}
+#sfdep - working with simple feature dataframes. For point pattern analysis
+#Global colocation quotient 
+pacman::p_load(sf, tidyverse, tmap, sfdep)
+```
+
+### Importing data
+
+```{r}
+studyArea <- st_read(dsn = 'data',
+                     layer ="study_area") %>%
+  st_transform(crs = 3829)
+```
+
+```{r}
+stores <- st_read(dsn = "data",
+                  layer = "stores")%>%
+  st_transform(crs = 3829)
+```
+
+### Visualize the layers
+
+```{r}
+tmap_mode("view")
+tm_shape(studyArea) +
+  tm_polygons() +
+  tm_shape(stores) +
+  tm_dots(col = "Name",
+          size = 0.01,
+          border.col = "black",
+          border.lwd = 0.5) +
+  tm_view(set.zoom.limits = c(12,16))
+```
+
+## Local Colocation Quotients (LCLQ)
+
+```{r}
+nb <- include_self(
+  st_knn(st_geometry(stores),6) #6 points, so to avoid a 50-50 situation, we include self so that it is always uneven
+)
+
+wt <- st_kernel_weights(nb,
+                        stores,
+                        "gaussian",
+                        adaptive = TRUE)
+
+FamilyMart <- stores %>%
+  filter(Name == "Family Mart")
+A <- FamilyMart$Name
+
+SevenEleven <- stores %>%
+  filter(Name == "7-Eleven")
+B <- SevenEleven$Name
+
+#A- target, B- the neighbour we are checking for colocation
+LCLQ <- local_colocation(A, B, nb, wt, 49)
+
+LCLQ_stores <- cbind(stores, LCLQ)#Cannot do relational join because the two layers dont ahve unique identifier
+
+tmap_mode("view")
+tm_shape(studyArea) +
+  tm_polygons() +
+  tm_shape(LCLQ_stores) +
+  tm_dots(col="X7.Eleven",
+          size = 0.01,
+          border.col = "black",
+          border.lwd = 0.5) +
+  tm_view(set.zoom.limits = c(12, 16))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+### Computing kernel weights
+
+```{r}
+wt <- st_kernel_weights(nb, 
+                        stores, 
+                        "gaussian", 
+                        adaptive = TRUE)
+```
+
+### Preparing the vector list
+
+```{r}
+FamilyMart <- stores %>%
+  filter(Name == "Family Mart")
+A <- FamilyMart$Name
+```
+
+```{r}
+SevenEleven <- stores %>%
+  filter(Name == "7-Eleven")
+B <- SevenEleven$Name
+```
+
+### Compute LCLQ
+
+```{r}
+LCLQ <- local_colocation(A, B, nb, wt, 49)
+```
+
+### Joining output table
+
+```{r}
+LCLQ_stores <- cbind(stores, LCLQ)
+```
+
+## Plotting LCLQ values
+
+```{r}
+tmap_mode("view")
+tm_shape(studyArea) +
+  tm_polygons() +
+tm_shape(LCLQ_stores)+ 
+  tm_dots(col = "X7.Eleven",
+             size = 0.01,
+             border.col = "black",
+             border.lwd = 0.5) +
+  tm_view(set.zoom.limits = c(12, 16))
+```

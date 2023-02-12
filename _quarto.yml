@@ -21,10 +21,12 @@ website:
             href: "in-class-exercise/wk3/ice_w3.qmd"
           - text: "In-class exercise 4"
             href: "hands-on-exercise/wk4/HOE_wk4.qmd"
+          - text: "In-class exercise 5"
+            href: "in-class-exercise/wk5/ICE_wk5.qmd"
       - text: "Take home exercise"
         menu: 
           - text: "Take home exercise 1"
-            
+            href: "Takehome_exercise/TakeHome1/TakeHome_ex1.qmd"
     right: 
       - href: index.qmd
         text: Home

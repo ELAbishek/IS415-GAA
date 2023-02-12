@@ -1,5 +1,5 @@
 ---
-title: Hands-On Exercise 4
+title: Hands-On Exercise 4 and 5
 subtitle: In class exercise 4
 date: "`r Sys.Date()`"
 format: html
@@ -42,7 +42,8 @@ mpsz_sf <- st_read(dsn = "data",
 ```{r}
 tmap_mode('view')
 tm_shape(childcare_sf)+
-  tm_dots()
+  tm_dots(alpha = 0.5)+
+  tm_view(set.zoom.limits = c(11,13))
 ```
 
 ```{r}
