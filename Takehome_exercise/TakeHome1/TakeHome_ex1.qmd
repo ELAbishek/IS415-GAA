@@ -11,7 +11,7 @@ editor: visual
 
 # Intro
 
-Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world\'s accessible freshwater.
+Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world's accessible freshwater.
 
 Developing countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.
 
@@ -221,7 +221,7 @@ wpf_sp <- as(wpf,"SpatialPoints")
 wpnf_sp <- as(wpnf, "SpatialPoints")
 ```
 
-#### Creationg of owin object
+#### Creation of owin object
 
 ```{r}
 NG_owin <- as(NG_sp, "owin")
@@ -391,6 +391,16 @@ From the KDE plots done above we can see that there is a huge disparity in terms
 
 In order to perform second order spatial point analysis, in this case we are creating owin objects of some LGAs within Osun for observation
 
+-   H0: Functional and non functional waterpoints are randomly distributed
+
+-   H1: Functional and non functional waterpoints are not randomly distributed
+
+-   Confidence level : 99%
+
+-   Significance level (alpha) : 0.05
+
+-   Reject null hypothesis if p-value is \< 0.05
+
 ```{r}
 #Functional water points
 IfeCentralowin <- NGA[NGA$ADM2_EN == "Ife Central",] %>%
@@ -504,6 +514,16 @@ In both of the spatial randomness tests for functional waterpoints in the region
 
 ## Local Colocation Quotients (LCLQ)
 
+-   H0: The Functional Water Points in Osun are not co-located with the Non-Functional Water Points
+
+-   H1: The Functional Water Points in Osun are co-located with the Non-Functional Water Points
+
+-   Confidence level : 95%
+
+-   Significance level (alpha) : 0.05
+
+-   The null hypothesis will be rejected if p-value \< 0.05.
+
 ```{r}
 wp_sf_osun_kp <- wp_sf_osun %>%
   filter(`func_status` %in% c("Functional", "Non-Functional"))
@@ -577,6 +597,8 @@ tm_view(set.zoom.limits=c(9, 15),
           title="LCLQ"
           )
 ```
+
+### Conclusion
 
 In general the LCLQ value is just slightly less than 1 for statstically significant LCLQ (i.e: p value is \< 0.05) . This shows that for a functional waterpoint it is less likely to have a non functional waterpoint in its neighbourhood. This proportion represents the waterpoints proportion across Osun very well.
 
