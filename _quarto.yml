@@ -23,6 +23,8 @@ website:
             href: "hands-on-exercise/wk4/HOE_wk4.qmd"
           - text: "In-class exercise 5"
             href: "in-class-exercise/wk5/ICE_wk5.qmd"
+          - text: "In-class exercise 6"
+            href: "in-class-exercise/wk6/ice_wk6.qmd"
       - text: "Take home exercise"
         menu: 
           - text: "Take home exercise 1"
