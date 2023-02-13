@@ -13,6 +13,8 @@ website:
             href: "hands-on-exercise/wk3/HOE_Wk3.qmd"
           - text: "Hands-on exercise 4 and 5"
             href: "hands-on-exercise/wk4/HOE_wk4.qmd"
+          - text: "Hands-on-exercise wk6"
+            href: "hands-on-exercise/wk6/hoe_wk6.qmd"
       - text: "In-class exercise"
         menu: 
           - text: "In-class exercise 2"
