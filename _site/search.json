@@ -102,7 +102,7 @@
     "href": "hands-on-exercise/wk4/HOE_wk4.html#clark-and-evans-test-choa-chu-kang-planning-area",
     "title": "Hands-On Exercise 4 and 5",
     "section": "Clark and Evans Test: Choa Chu Kang planning area",
-    "text": "Clark and Evans Test: Choa Chu Kang planning area\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.94331, p-value = 0.136\nalternative hypothesis: two-sided\n\n\nClark and Evans Test: Tampines planning area\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.7933, p-value = 0.002\nalternative hypothesis: two-sided"
+    "text": "Clark and Evans Test: Choa Chu Kang planning area\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.94205, p-value = 0.132\nalternative hypothesis: two-sided\n\n\nClark and Evans Test: Tampines planning area\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.80616, p-value = 0.002\nalternative hypothesis: two-sided"
   },
   {
     "objectID": "hands-on-exercise/wk4/HOE_wk4.html#choa-chu-kang-planning-area",
@@ -326,7 +326,7 @@
     "href": "hands-on-exercise/wk7/hoe_wk7.html#global-spatial-autocorrelation-morans-i",
     "title": "Hands-on exercise 7",
     "section": "Global Spatial Autocorrelation: Moran’s I",
-    "text": "Global Spatial Autocorrelation: Moran’s I\n\nMaron’s I test\n\nmoran.test(hunan$GDPPC, \n           listw=rswm_q, \n           zero.policy = TRUE, \n           na.action=na.omit)\n\n\n    Moran I test under randomisation\n\ndata:  hunan$GDPPC  \nweights: rswm_q    \n\nMoran I statistic standard deviate = 4.7351, p-value = 1.095e-06\nalternative hypothesis: greater\nsample estimates:\nMoran I statistic       Expectation          Variance \n      0.300749970      -0.011494253       0.004348351 \n\n\n\n\nComputing Monte Carlo Moran’s I\n\nset.seed(1234)\nbperm= moran.mc(hunan$GDPPC, \n                listw=rswm_q, \n                nsim=999, \n                zero.policy = TRUE, \n                na.action=na.omit)\nbperm\n\n\n    Monte-Carlo simulation of Moran I\n\ndata:  hunan$GDPPC \nweights: rswm_q  \nnumber of simulations + 1: 1000 \n\nstatistic = 0.30075, observed rank = 1000, p-value = 0.001\nalternative hypothesis: greater\n\n\n\n\nVisualising Monte Carlo Moran’s I\n\nmean(bperm$res[1:999])\n\n[1] -0.01504572\n\n\n\nvar(bperm$res[1:999])\n\n[1] 0.004371574\n\n\n\nsummary(bperm$res[1:999])\n\n    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. \n-0.18339 -0.06168 -0.02125 -0.01505  0.02611  0.27593 \n\n\n\nhist(bperm$res, \n     freq=TRUE, \n     breaks=20, \n     xlab=\"Simulated Moran's I\")\nabline(v=0, \n       col=\"red\")"
+    "text": "Global Spatial Autocorrelation: Moran’s I\n\nMoran’s I test\n\nmoran.test(hunan$GDPPC, \n           listw=rswm_q, \n           zero.policy = TRUE, \n           na.action=na.omit)\n\n\n    Moran I test under randomisation\n\ndata:  hunan$GDPPC  \nweights: rswm_q    \n\nMoran I statistic standard deviate = 4.7351, p-value = 1.095e-06\nalternative hypothesis: greater\nsample estimates:\nMoran I statistic       Expectation          Variance \n      0.300749970      -0.011494253       0.004348351 \n\n\n\n\nComputing Monte Carlo Moran’s I\n\nset.seed(1234)\nbperm= moran.mc(hunan$GDPPC, \n                listw=rswm_q, \n                nsim=999, \n                zero.policy = TRUE, \n                na.action=na.omit)\nbperm\n\n\n    Monte-Carlo simulation of Moran I\n\ndata:  hunan$GDPPC \nweights: rswm_q  \nnumber of simulations + 1: 1000 \n\nstatistic = 0.30075, observed rank = 1000, p-value = 0.001\nalternative hypothesis: greater\n\n\n\n\nVisualising Monte Carlo Moran’s I\n\nmean(bperm$res[1:999])\n\n[1] -0.01504572\n\n\n\nvar(bperm$res[1:999])\n\n[1] 0.004371574\n\n\n\nsummary(bperm$res[1:999])\n\n    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. \n-0.18339 -0.06168 -0.02125 -0.01505  0.02611  0.27593 \n\n\n\nhist(bperm$res, \n     freq=TRUE, \n     breaks=20, \n     xlab=\"Simulated Moran's I\")\nabline(v=0, \n       col=\"red\")"
   },
   {
     "objectID": "hands-on-exercise/wk7/hoe_wk7.html#global-spatial-autocorrelation-gearys",
@@ -588,6 +588,62 @@
     "text": "pacman::p_load(sf, sfdep, tmap, tidyverse, knitr)\n\n\n\n\n\n\nhunan <- st_read(dsn = \"data/geospatial\", \n                 layer = \"Hunan\")\n\nReading layer `Hunan' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk6\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84\n\n\n\n\n\n\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")\n\n\n\n\n\n\n#Note : To retain geometric column, then left file should be SF and right should be tibbler\nhunan_GDPPC <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)\n\n\n\n\n\ntmap_mode('plot')\ntm_shape(hunan_GDPPC)+\n  tm_fill(\"GDPPC\",\n          style = \"quantile\",\n          palette = \"Blues\",\n          title = \"GDPPC\")+\n  tm_layout(main.title = \"Distribution of GDP per capita by district\",\n            main.title.position = \"center\",\n            main.title.size = 1.0,\n            legend.height = 0.45,\n            legend.width = 0.35,\n            frame = TRUE) +\n  tm_borders(alpha = 0.5) +\n  tm_compass(type = \"8star\", size = 2) +\n  tm_scale_bar() +\n  tm_grid(alpha = 0.2)\n\n\n\n\n\n\n\n\n\n\ncn_queen <- hunan_GDPPC %>%\n  mutate(nb = st_contiguity(geometry),\n         .before = 1)#Before 1 puts this as the new first column\n\n\nst_contiguity(hunan_GDPPC, queen = TRUE)\n\nNeighbour list object:\nNumber of regions: 88 \nNumber of nonzero links: 448 \nPercentage nonzero weights: 5.785124 \nAverage number of links: 5.090909 \n\n\n\n\n\n\ncn_rook <- hunan_GDPPC %>%\n  mutate(nb = st_contiguity(geometry),\n         queen = FALSE,\n         .before = 1)#Before 1 puts this as the new first column\n\n\n\n\n\n\n\n\nwm_q <- hunan_GDPPC %>%\n  mutate(nb = st_contiguity(geometry),\n         wt = st_weights(nb),\n         .before = 1)\n\n\n\n\n\nwm_q <- hunan_GDPPC %>%\n  mutate(nb = st_contiguity(geometry),\n         wt = st_weights(nb),\n         queen = FALSE,\n         .before = 1)"
   },
   {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html",
+    "href": "in-class-exercise/wk7/ice_wk7.html",
+    "title": "In-class exercise 7",
+    "section": "",
+    "text": "pacman::p_load(sf, sfdep, tmap, tidyverse, plotly, zoo, Kendall)\n\n\n\n\n\n\n\nhunan <- st_read(dsn = \"data/geospatial\", \n                 layer = \"Hunan\")\n\nReading layer `Hunan' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\in-class-exercise\\wk7\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84\n\n\n\n\n\n\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")\n\n\nGDPPC <- read_csv(\"data/aspatial/Hunan_GDPPC.csv\")\n\nGDPPC_st = spacetime(GDPPC, hunan, .loc_col = \"County\", .time_col = \"Year\")\n\n\n\n\n\n\nhunan_GDPPC <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)\n\n\n\n\n\ntmap_mode('plot')\ntm_shape(hunan_GDPPC)+\n  tm_fill(\"GDPPC\",\n          style = \"quantile\",\n          palette = \"Blues\",\n          title = \"GDPPC\")+\n  tm_layout(main.title = \"Distribution of GDP per capita by district\",\n            main.title.position = \"center\",\n            main.title.size = 1.0,\n            legend.height = 0.45,\n            legend.width = 0.35,\n            frame = TRUE) +\n  tm_borders(alpha = 0.5) +\n  tm_compass(type = \"8star\", size = 2) +\n  tm_scale_bar() +\n  tm_grid(alpha = 0.2)\n\n\n\n\n\n\n\n\n\n\nwm_q <- hunan_GDPPC %>%\n  mutate(nb = st_contiguity(geometry),\n         wt = st_weights(nb),\n         .before = 1)\n\n\n\n\n\n\n\n\nmoranI <- global_moran(wm_q$GDPPC,\n                       wm_q$nb,\n                       wm_q$wt)\n\n\n\n\n\nglobal_moran_test(wm_q$GDPPC,\n                  wm_q$nb,\n                  wm_q$wt)\n\n\n    Moran I test under randomisation\n\ndata:  x  \nweights: listw    \n\nMoran I statistic standard deviate = 4.7351, p-value = 1.095e-06\nalternative hypothesis: greater\nsample estimates:\nMoran I statistic       Expectation          Variance \n      0.300749970      -0.011494253       0.004348351 \n\n\n\n\n\n\nset.seed(1234)\nglobal_moran_perm(wm_q$GDPPC,\n                  wm_q$nb,\n                  wm_q$wt,\n                  nsim = 99)\n\n\n    Monte-Carlo simulation of Moran I\n\ndata:  x \nweights: listw  \nnumber of simulations + 1: 100 \n\nstatistic = 0.30075, observed rank = 100, p-value < 2.2e-16\nalternative hypothesis: two.sided"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#visualizing-gi",
+    "href": "in-class-exercise/wk7/ice_wk7.html#visualizing-gi",
+    "title": "In-class exercise 7",
+    "section": "Visualizing Gi*",
+    "text": "Visualizing Gi*\n\ntm_shape(HCSA)+\n  tm_fill(\"gi_star\")+\n  tm_borders(alpha = 0.5)+\n  tm_view(set.zoom.limits = c(6,8))"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#visualizing-p-value-of-hcsa",
+    "href": "in-class-exercise/wk7/ice_wk7.html#visualizing-p-value-of-hcsa",
+    "title": "In-class exercise 7",
+    "section": "Visualizing p value of HCSA",
+    "text": "Visualizing p value of HCSA\n\ntm_shape(HCSA)+\n  tm_fill(\"p_sim\")+\n  tm_borders(alpha = 0.5)"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#creating-time-cube-series",
+    "href": "in-class-exercise/wk7/ice_wk7.html#creating-time-cube-series",
+    "title": "In-class exercise 7",
+    "section": "Creating time cube series",
+    "text": "Creating time cube series\n\nGDPPC_nb <- GDPPC_st %>%\n  activate(\"geometry\") %>%\n  mutate(\n    nb = include_self(st_contiguity(geometry)),\n    wt = st_weights(nb)\n  )%>%\n  set_nbs(\"nb\") %>%\n  set_wts(\"wt\")"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#computing-gi-1",
+    "href": "in-class-exercise/wk7/ice_wk7.html#computing-gi-1",
+    "title": "In-class exercise 7",
+    "section": "Computing Gi*",
+    "text": "Computing Gi*\n\ngi_stars <- GDPPC_nb %>%\n  group_by(Year) %>%\n  mutate(gi_star = local_gstar_perm(GDPPC, nb, wt, nsim=99),\n         .before = 1) %>%\n  unnest(gi_star)"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#arrange-to-show-significant-weights",
+    "href": "in-class-exercise/wk7/ice_wk7.html#arrange-to-show-significant-weights",
+    "title": "In-class exercise 7",
+    "section": "Arrange to show significant weights",
+    "text": "Arrange to show significant weights\n\nehsa <- emerging_hotspot_analysis(\n  GDPPC_st,\n  .var = \"GDPPC\",\n  k = 1,\n  nsim = 99\n)"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#distance-based-weights",
+    "href": "in-class-exercise/wk7/ice_wk7.html#distance-based-weights",
+    "title": "In-class exercise 7",
+    "section": "Distance-based weights",
+    "text": "Distance-based weights"
+  },
+  {
+    "objectID": "in-class-exercise/wk7/ice_wk7.html#deriving-adaptive-weights",
+    "href": "in-class-exercise/wk7/ice_wk7.html#deriving-adaptive-weights",
+    "title": "In-class exercise 7",
+    "section": "Deriving adaptive weights",
+    "text": "Deriving adaptive weights"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "IS415-GAA",
@@ -649,5 +705,33 @@
     "title": "Take home assignment 1",
     "section": "Analysis",
     "text": "Analysis\n\ntmap_mode('view')\ntm_view(set.zoom.limits=c(9, 15),\n        bbox = st_bbox(filter(LCLQ_waterpoints, !is.na(`Non.Functional`)))) +\n  tm_shape(NGA) +\n  tm_borders() +\n  tm_shape(LCLQ_waterpoints) +\n  tm_dots(col=\"Non.Functional\",\n          palette=c(\"cyan\", \"grey\"),\n          size = \"size\",\n          scale=0.15,\n          border.col = \"black\",\n          border.lwd = 0.5,\n          alpha=0.5,\n          title=\"LCLQ\"\n          )\n\n\n\n\n\n\n\nConclusion\nIn general the LCLQ value is just slightly less than 1 for statstically significant LCLQ (i.e: p value is < 0.05) . This shows that for a functional waterpoint it is less likely to have a non functional waterpoint in its neighbourhood. This proportion represents the waterpoints proportion across Osun very well.\n\ntmap_mode('plot')"
+  },
+  {
+    "objectID": "Takehome_exercise/TakeHome2/Takehome_ex2.html",
+    "href": "Takehome_exercise/TakeHome2/Takehome_ex2.html",
+    "title": "Take home assignment 2",
+    "section": "",
+    "text": "pacman::p_load(plyr, sf, tidyverse, readxl, tmap, maptools, kableExtra)\n\n\n\n\n\n\n\njkt_sf <- st_read(dsn=\"data/geospatial\",\n                      layer=\"BATAS_DESA_DESEMBER_2019_DUKCAPIL_DKI_JAKARTA\")\n\nReading layer `BATAS_DESA_DESEMBER_2019_DUKCAPIL_DKI_JAKARTA' from data source \n  `C:\\Study\\Y3\\S2\\IS415\\ELAbishek\\IS415-GAA\\Takehome_exercise\\TakeHome2\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 269 features and 161 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 106.3831 ymin: -6.370815 xmax: 106.9728 ymax: -5.184322\nGeodetic CRS:  WGS 84\n\n\n\n\n\nSince we need monthly vaccination rate, we will be taking all the vaccination data from July 2021 to June 2022\n\noct2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Oktober 2021).xlsx\")\nmay2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Mei 2022).xlsx\")\nmarch2022 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Maret 2022).xlsx\")\njuly2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Juli 2021).xlsx\")\njan2022 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Januari 2022).xlsx\")\ndec2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Desember 2021).xlsx\")\naug2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Agustus 2021).xlsx\")\nsept2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 September 2021).xlsx\")\nnov2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 November 2021).xlsx\")\njune2022 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 Juni 2022).xlsx\")\napril2022 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 April 2022).xlsx\")\nfeb2021 <- read_xlsx(\"data/aspatial/Data Vaksinasi Berbasis Kelurahan (27 Februari 2022).xlsx\")"
+  },
+  {
+    "objectID": "Takehome_exercise/TakeHome2/Takehome_ex2.html#checking-for-na-values",
+    "href": "Takehome_exercise/TakeHome2/Takehome_ex2.html#checking-for-na-values",
+    "title": "Take home assignment 2",
+    "section": "Checking for NA values",
+    "text": "Checking for NA values\n\njkt_sf[rowSums(is.na(jkt_sf))!=0,]\n\nSimple feature collection with 0 features and 161 fields\nBounding box:  xmin: NA ymin: NA xmax: NA ymax: NA\nGeodetic CRS:  WGS 84\n  [1] OBJECT_ID  KODE_DESA  DESA       KODE       PROVINSI   KAB_KOTA  \n  [7] KECAMATAN  DESA_KELUR JUMLAH_PEN JUMLAH_KK  LUAS_WILAY KEPADATAN \n [13] PERPINDAHA JUMLAH_MEN PERUBAHAN  WAJIB_KTP  SILAM      KRISTEN   \n [19] KHATOLIK   HINDU      BUDHA      KONGHUCU   KEPERCAYAA PRIA      \n [25] WANITA     BELUM_KAWI KAWIN      CERAI_HIDU CERAI_MATI U0        \n [31] U5         U10        U15        U20        U25        U30       \n [37] U35        U40        U45        U50        U55        U60       \n [43] U65        U70        U75        TIDAK_BELU BELUM_TAMA TAMAT_SD  \n [49] SLTP       SLTA       DIPLOMA_I  DIPLOMA_II DIPLOMA_IV STRATA_II \n [55] STRATA_III BELUM_TIDA APARATUR_P TENAGA_PEN WIRASWASTA PERTANIAN \n [61] NELAYAN    AGAMA_DAN  PELAJAR_MA TENAGA_KES PENSIUNAN  LAINNYA   \n [67] GENERATED  KODE_DES_1 BELUM_     MENGUR_    PELAJAR_   PENSIUNA_1\n [73] PEGAWAI_   TENTARA    KEPOLISIAN PERDAG_    PETANI     PETERN_   \n [79] NELAYAN_1  INDUSTR_   KONSTR_    TRANSP_    KARYAW_    KARYAW1   \n [85] KARYAW1_1  KARYAW1_12 BURUH      BURUH_     BURUH1     BURUH1_1  \n [91] PEMBANT_   TUKANG     TUKANG_1   TUKANG_12  TUKANG__13 TUKANG__14\n [97] TUKANG__15 TUKANG__16 TUKANG__17 PENATA     PENATA_    PENATA1_1 \n[103] MEKANIK    SENIMAN_   TABIB      PARAJI_    PERANCA_   PENTER_   \n[109] IMAM_M     PENDETA    PASTOR     WARTAWAN   USTADZ     JURU_M    \n[115] PROMOT     ANGGOTA_   ANGGOTA1   ANGGOTA1_1 PRESIDEN   WAKIL_PRES\n[121] ANGGOTA1_2 ANGGOTA1_3 DUTA_B     GUBERNUR   WAKIL_GUBE BUPATI    \n[127] WAKIL_BUPA WALIKOTA   WAKIL_WALI ANGGOTA1_4 ANGGOTA1_5 DOSEN     \n[133] GURU       PILOT      PENGACARA_ NOTARIS    ARSITEK    AKUNTA_   \n[139] KONSUL_    DOKTER     BIDAN      PERAWAT    APOTEK_    PSIKIATER \n[145] PENYIA_    PENYIA1    PELAUT     PENELITI   SOPIR      PIALAN    \n[151] PARANORMAL PEDAGA_    PERANG_    KEPALA_    BIARAW_    WIRASWAST_\n[157] LAINNYA_12 LUAS_DESA  KODE_DES_3 DESA_KEL_1 KODE_12    geometry  \n<0 rows> (or 0-length row.names)\n\n\nNo NA values were found in any records, so we can proceed with our analysis"
+  },
+  {
+    "objectID": "Takehome_exercise/TakeHome2/Takehome_ex2.html#translation",
+    "href": "Takehome_exercise/TakeHome2/Takehome_ex2.html#translation",
+    "title": "Take home assignment 2",
+    "section": "Translation",
+    "text": "Translation\nI realized pretty quickly that if I were to continue working with data in a language I am not very proficient in, this whole analysis could become very tedious, so for convenience sake, I will be performing translation of the data\n\njkt_sf <- jkt_sf %>% \n  dplyr::rename(\n    Object_ID=OBJECT_ID,\n    Province=PROVINSI, \n    City=KAB_KOTA, \n    District=KECAMATAN, \n    Village_Code=KODE_DESA, \n    Village=DESA, \n    Sub_District=DESA_KELUR,\n    Code=KODE, \n    Total_Population=JUMLAH_PEN\n    )\n\nNice, now the relevant columns are in English"
+  },
+  {
+    "objectID": "Takehome_exercise/TakeHome2/Takehome_ex2.html#trying-aspatial-import-stuff",
+    "href": "Takehome_exercise/TakeHome2/Takehome_ex2.html#trying-aspatial-import-stuff",
+    "title": "Take home assignment 2",
+    "section": "Trying aspatial import stuff",
+    "text": "Trying aspatial import stuff\n\naspatial_preprocess <- function(filepath){\n  result_file <- read_xlsx(filepath, .name_repair=\"minimal\")\n\n  result_file <- result_file[, !duplicated(colnames(result_file), fromLast = TRUE)] \n  startpoint <- gregexpr(pattern=\"Kelurahan\", filepath)[[1]] + 8\n  endpoint <- gregexpr(pattern=\")\", filepath)[[1]] - 2\n  result_file$Date <- substr(filepath, startpoint, endpoint)\n  \n  # Retain the Relevant Columns\n  result_file <- result_file %>% \n    select(\"Date\", \n           \"KODE KELURAHAN\", \n           \"WILAYAH KOTA\", \n           \"KECAMATAN\", \n           \"KELURAHAN\", \n           \"SASARAN\", \n           \"BELUM VAKSIN\",\n           \"JUMLAH\\r\\nDOSIS 1\",\n           \"JUMLAH\\r\\nDOSIS 2\",\n           \"TOTAL VAKSIN\\r\\nDIBERIKAN\"\n)\n  return(result_file)\n}\n\n\n# in the folder 'data/aspatial', find files with the extension '.xlsx' and add it to our fileslist \n# the full.names=TRUE prepends the directory path to the file names, giving a relative file path - otherwise, only the file names (not the paths) would be returned \n# reference: https://stat.ethz.ch/R-manual/R-devel/library/base/html/list.files.html\nfileslist <-list.files(path = \"data/aspatial\", pattern = \"*.xlsx\", full.names=TRUE)\n\n# afterwards, for every element in fileslist, apply aspatial_process function\ndflist <- lapply(seq_along(fileslist), function(x) aspatial_preprocess(fileslist[x]))\n\n\ncases_jakarta <- ldply(dflist, data.frame)"
   }
 ]

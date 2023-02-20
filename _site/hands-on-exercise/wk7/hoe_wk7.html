@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-02-16">
+<meta name="dcterms.date" content="2023-02-20">
 
 <title>IS415-GAA - Hands-on exercise 7</title>
 <style>
@@ -192,6 +192,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <a class="dropdown-item" href="../../in-class-exercise/wk6/ice_wk6.html">
  <span class="dropdown-text">In-class exercise 6</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../in-class-exercise/wk7/ice_wk7.html">
+ <span class="dropdown-text">In-class exercise 6</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -247,7 +251,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#row-standardised-weights-matrix" id="toc-row-standardised-weights-matrix" class="nav-link" data-scroll-target="#row-standardised-weights-matrix">Row standardised weights matrix</a></li>
   <li><a href="#global-spatial-autocorrelation-morans-i" id="toc-global-spatial-autocorrelation-morans-i" class="nav-link" data-scroll-target="#global-spatial-autocorrelation-morans-i">Global Spatial Autocorrelation: Moran’s I</a>
   <ul class="collapse">
-  <li><a href="#marons-i-test" id="toc-marons-i-test" class="nav-link" data-scroll-target="#marons-i-test">Maron’s I test</a></li>
+  <li><a href="#morans-i-test" id="toc-morans-i-test" class="nav-link" data-scroll-target="#morans-i-test">Moran’s I test</a></li>
   <li><a href="#computing-monte-carlo-morans-i" id="toc-computing-monte-carlo-morans-i" class="nav-link" data-scroll-target="#computing-monte-carlo-morans-i">Computing Monte Carlo Moran’s I</a></li>
   <li><a href="#visualising-monte-carlo-morans-i" id="toc-visualising-monte-carlo-morans-i" class="nav-link" data-scroll-target="#visualising-monte-carlo-morans-i">Visualising Monte Carlo Moran’s I</a></li>
   </ul></li>
@@ -315,7 +319,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 16, 2023</p>
+      <p class="date">February 20, 2023</p>
     </div>
   </div>
   
@@ -442,8 +446,8 @@ W 88 7744 88 37.86334 365.9147</code></pre>
 </section>
 <section id="global-spatial-autocorrelation-morans-i" class="level2">
 <h2 class="anchored" data-anchor-id="global-spatial-autocorrelation-morans-i">Global Spatial Autocorrelation: Moran’s I</h2>
-<section id="marons-i-test" class="level3">
-<h3 class="anchored" data-anchor-id="marons-i-test">Maron’s I test</h3>
+<section id="morans-i-test" class="level3">
+<h3 class="anchored" data-anchor-id="morans-i-test">Moran’s I test</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">moran.test</span>(hunan<span class="sc">$</span>GDPPC, </span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">listw=</span>rswm_q, </span>

@@ -82,7 +82,7 @@ rswm_q
 
 ## Global Spatial Autocorrelation: Moran's I
 
-### Maron's I test
+### Moran's I test
 
 ```{r}
 moran.test(hunan$GDPPC, 
