@@ -67,7 +67,7 @@ tm_shape(hunan_GDPPC)+
 
 ## Global measures of spatial association
 
-### Derive row standardised weights metric 
+### Derive row standardised weights metric
 
 ```{r}
 wm_q <- hunan_GDPPC %>%
@@ -104,7 +104,7 @@ global_moran_perm(wm_q$GDPPC,
                   nsim = 99)
 ```
 
-# Computing local Morans I 
+# Computing local Morans I
 
 ```{r}
 lisa <- wm_q %>%

@@ -1,0 +1,124 @@
+---
+Title: 'Shiny Basics'
+---
+
+# Project Expectations
+
+Objectives & Motivations
+
+-   Do NOT make your proposal very sweet-talk-y, do not oversell your technology (prof personal preference)
+
+    -   Man is tired of all the bs
+
+-   Only motivation is to fulfill requirements of this course kek, literally to just make data/analytics readily available to access and use by the general user (democratising the data)
+
+    -   So should just be an interactive tool for ppl with no programming knowledge to use to look at and analyse the data (kinda like the super jank website jen was getting 28375290385 popups from)
+
+-   Look into local, global, environmental, business-related issues
+
+    -   Must be able to value add/differentiate, if not what is special about your application, need to be able to explain why it is better than what is available in the market
+
+        -   Actually according to prof the things he teach us is quite niche already, so already quite differentiated lol (at least in this part of the world)
+
+-   Refer to previous projects (he was using the Spatial Pointers project as an example when going over https://spatial-pointers.netlify.app/project-proposal)
+
+    -   If you refer to previous projects, please do credit them in references
+
+Things to note when writing proposal
+
+-   Be quite specific/explicit in the **Data Source** section (both for prof when he checks our proposal as well as for ppl viewing your project in the future)
+
+    -   Provide some description how you want to use it
+
+-   Literature review
+
+    -   Can review other ppl's web applications and compare
+
+-   Story Board
+
+    -   Can be a sketch, but needs to be as detailed as possible
+
+    -   Refer to https://spatial-pointers.netlify.app/project-proposal
+
+    -   Is basically paper prototype
+
+    -   User experience / flow and all your features should be evident
+
+-   Timeline
+
+    -   Prepare a workflow, use a Gantt chart
+
+    -   Map out the functions you want to have, as well as the time allocation so can compare with actual progress and keep on track
+
+        -   Features should be seperated in a way so as to have a clear division of labour between group mates
+
+    -   Make sure you have a cut off date & buffer time for testing and fine-tuning
+
+Application Expectation
+
+-   App needs to be live
+
+-   Users should be able to use it themselves
+
+    -   E.g. user can upload own data / toggle between pre-prepared datasets
+
+    -   Basically user should be able to click click interface buttons/dropdowns etc to expose particular functions and show the users the data they want
+
+-   User interface should at least have basic user input verification
+
+    -   E.g. if you are comparing 2 vars, if u select one var alr, should not be able to select the same var again in order to avoid duplication/user input errors
+
+# Shiny Basics
+
+## Overview
+
+-   An R-based web application framework (actually now there's a python version also)
+
+-   Official Shiny website: https://shiny.rstudio.com/
+
+-   Recommended "textbook": https://mastering-shiny.org/
+
+-   More advanced shiny dev: https://engineering-shiny.org/
+
+-   Reference for UI: https://unleash-shiny.rinterface.com/
+
+## Getting to know Shiny
+
+-   Allows you to build webapps without having to deal with complicated UI (html, css etc)
+
+    -   You can actually get extensions to use it with React and other things
+
+-   A client-server webapp. Client -\> Web browser, Server -\> where your application is held
+
+    -   During development stage, your own computer will be your server. But when deploy, server belongs to shinyapp.io, **therefore can only use packages that are on CRAN**
+
+-   Two main components
+
+    -   User-interface script (html)
+
+    -   Server script (your main file)
+
+## Getting started
+
+1.  Go Tools \> Install Packages and install Shiny
+2.  Create a new Shiny Web Application
+3.  Can select either 'Single File' or 'Multiple File'
+    1.  Single File -\> 1 File
+
+    2.  Multiple -\> will give you the seperate R script and UI script files
+4.  Will generate some sample code, press run to make sure your computer can run
+5.  Do NOT rename the app.R file
+
+## Basic Shiny App Components
+
+1.  UI
+    1.  ui \<- fluidPage()
+2.  Server
+    1.  server \<- function(input, output) {}
+3.  Integration
+    1.  shinyApp(ui = ui, server = server)
+    2.  MUST always be the LAST LINE of code
+
+## Layout
+
+-   Refer to slides for all the diff layouts, but we will typically use sidebarLayout()

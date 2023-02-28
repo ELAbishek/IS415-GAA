@@ -2,6 +2,7 @@
 title: Take home assignment 2
 date: "`r Sys.Date()`"
 format: html
+theme: superhero
 execute: 
   message: false
   warning: false
@@ -13,7 +14,7 @@ editor: visual
 ## Import packages
 
 ```{r}
-pacman::p_load(plyr, sf, tidyverse, readxl, tmap, maptools, kableExtra)
+pacman::p_load(plyr, sf, tidyverse, readxl, tmap, maptools, kableExtra, sfdep, dplyr,plotly)
 ```
 
 ## Import data
@@ -23,6 +24,9 @@ pacman::p_load(plyr, sf, tidyverse, readxl, tmap, maptools, kableExtra)
 ```{r}
 jkt_sf <- st_read(dsn="data/geospatial",
                       layer="BATAS_DESA_DESEMBER_2019_DUKCAPIL_DKI_JAKARTA")
+
+jkt_sf <- jkt_sf %>%
+  st_transform(crs = 23845)
 ```
 
 ### Import Aspatial data
@@ -31,17 +35,6 @@ Since we need monthly vaccination rate, we will be taking all the vaccination da
 
 ```{r}
 oct2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Oktober 2021).xlsx")
-may2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Mei 2022).xlsx")
-march2022 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Maret 2022).xlsx")
-july2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Juli 2021).xlsx")
-jan2022 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Januari 2022).xlsx")
-dec2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Desember 2021).xlsx")
-aug2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (31 Agustus 2021).xlsx")
-sept2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 September 2021).xlsx")
-nov2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 November 2021).xlsx")
-june2022 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 Juni 2022).xlsx")
-april2022 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (30 April 2022).xlsx")
-feb2021 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (27 Februari 2022).xlsx")
 ```
 
 # Data pre-processing
@@ -60,6 +53,7 @@ We are excluding the islands from the data. We do that by filtering out just the
 
 ```{r}
 jkt_sf[rowSums(is.na(jkt_sf))!=0,]
+
 ```
 
 No NA values were found in any records, so we can proceed with our analysis
@@ -86,15 +80,28 @@ jkt_sf <- jkt_sf %>%
 
 Nice, now the relevant columns are in English
 
-## Trying aspatial import stuff
+## Choosing necessary columns
+
+```{r}
+jkt_sf <- jkt_sf[, 0:9]
+```
+
+## Visualizing Jakarta
+
+```{r}
+tm_shape(jkt_sf) + 
+  tm_polygons("City")
+```
+
+## Trying to aspatial import stuff
 
 ```{r}
 aspatial_preprocess <- function(filepath){
   result_file <- read_xlsx(filepath, .name_repair="minimal")
 
   result_file <- result_file[, !duplicated(colnames(result_file), fromLast = TRUE)] 
-  startpoint <- gregexpr(pattern="Kelurahan", filepath)[[1]] + 8
-  endpoint <- gregexpr(pattern=")", filepath)[[1]] - 2
+  startpoint <- gregexpr(pattern="Kelurahan", filepath)[[1]] + 11
+  endpoint <- gregexpr(pattern=")", filepath)[[1]] -1
   result_file$Date <- substr(filepath, startpoint, endpoint)
   
   # Retain the Relevant Columns
@@ -106,8 +113,6 @@ aspatial_preprocess <- function(filepath){
            "KELURAHAN", 
            "SASARAN", 
            "BELUM VAKSIN",
-           "JUMLAH\r\nDOSIS 1",
-           "JUMLAH\r\nDOSIS 2",
            "TOTAL VAKSIN\r\nDIBERIKAN"
 )
   return(result_file)
@@ -125,5 +130,469 @@ dflist <- lapply(seq_along(fileslist), function(x) aspatial_preprocess(fileslist
 ```
 
 ```{r}
-cases_jakarta <- ldply(dflist, data.frame)
+vac_jkt <- ldply(dflist, data.frame)
 ```
+
+```{r}
+glimpse(vac_jkt)
+```
+
+### Checking for Null values
+
+```{r}
+vac_jkt[rowSums(is.na(vac_jkt))!=0,]
+```
+
+### Removing rows with null values
+
+```{r}
+vac_jkt <- na.omit(vac_jkt,c("KODE.KELURAHAN", "WILAYAH.KOTA", "KECAMATAN"))
+```
+
+## Reformatting date
+
+The date column is currently of string format, I will be changing that to date format
+
+```{r}
+Sys.setlocale(locale="ind") #The dates are all written in Bahasa Indonesia
+```
+
+```{r}
+vac_jkt$Date <- c(vac_jkt$Date) %>% 
+  as.Date(vac_jkt$Date, format ="%d %B %Y")
+
+glimpse(vac_jkt)
+```
+
+## Translation of data
+
+Similar to the translations earlier on geospatial data, I will now be translating the jakarta vaccinations dataframe from Bahasa to English
+
+```{r}
+vac_jkt <- vac_jkt %>% 
+  dplyr::rename(
+    Date=Date,
+    Sub_district_code=KODE.KELURAHAN,
+    City=WILAYAH.KOTA,
+    District=KECAMATAN,
+    Sub_District = KELURAHAN,
+    Target_Vaccination=SASARAN,
+    Unvaccinated = BELUM.VAKSIN,
+    Vaccinated = TOTAL.VAKSIN..DIBERIKAN
+    )
+```
+
+I got this from my friend who was kind enough to translate everything for me :\>
+
+# Integrating data
+
+## Joining data by sub district
+
+Sub_District, and city are the columns that are shared among jkt_sf and vac_jkt so I will be using that for performing join on the two dataframes
+
+```{r}
+jkt <- left_join(jkt_sf, vac_jkt,
+                              by=c(
+                                "Sub_District"="Sub_District",
+                                "City"="City")
+                              )
+```
+
+# Visualization
+
+```{r}
+vac = tm_shape(jkt)+
+  tm_fill("Vaccinated") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title="vaccinated")
+
+unvac = tm_shape(jkt)+
+  tm_fill("Unvaccinated") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title="unvaccinated")
+
+tmap_arrange(vac, unvac)
+```
+
+## Dealing with mismatched sub-district names
+
+```{r}
+vac_subdistrict <- c(vac_jkt$Sub_District)
+bd_subdistrict <- c(jkt_sf$Sub_District)
+
+unique(vac_subdistrict[!(vac_subdistrict %in% bd_subdistrict)])
+```
+
+```{r}
+unique(bd_subdistrict[!(bd_subdistrict %in% vac_subdistrict)])
+```
+
+```{r}
+spelling <- data.frame(
+  Aspatial_vac=c("BALE KAMBANG", "HALIM PERDANA KUSUMAH", "JATI PULO", "KALI BARU", "KAMPUNG TENGAH", "KRAMAT JATI", "KERENDANG", "PAL MERIAM", "PINANG RANTI", "RAWA JATI"),
+  Geospatial_BD=c("BALEKAMBAG", "HALIM PERDANA KUSUMA", "JATIPULO", "KALIBARU", "TENGAH", "KRAMATJATI", "KRENDANG", "PALMERIAM", "PINANGRANTI", "RAWAJATI")
+  )
+
+# with dataframe a input, outputs a kable
+library(knitr)
+library(kableExtra)
+kable(spelling, caption="Mismatched Records") %>%
+  kable_material("hover", latex_options="scale_down")
+```
+
+```{r}
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'BALEKAMBANG'] <- 'BALE KAMBANG'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'HALIM PERDANA KUSUMA'] <- 'HALIM PERDANA KUSUMAH'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'JATIPULO'] <- 'JATI PULO'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'KALIBARU'] <- 'KALI BARU'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'TENGAH'] <- 'KAMPUNG TENGAH'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'KRAMATJATI'] <- 'KRAMAT JATI'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'KRENDANG'] <- 'KERENDANG'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'PALMERIAM'] <- 'PAL MERIAM'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'PINANGRANTI'] <- 'PINANG RANTI'
+jkt_sf$Sub_District[jkt_sf$Sub_District == 'RAWAJATI'] <- 'RAWA JATI'
+```
+
+```{r}
+jkt <- left_join(jkt_sf, vac_jkt,
+                              by=c("Sub_District"="Sub_District")
+                              )
+```
+
+```{r}
+vac = tm_shape(jkt)+
+  tm_fill("Vaccinated") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title="vaccinated")
+
+unvac = tm_shape(jkt)+
+  tm_fill("Unvaccinated") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title="unvaccinated")
+
+tmap_arrange(vac, unvac)
+```
+
+## 
+
+# Vaccination Rate calculation
+
+The monthly vaccination rate is calculated by doing ((Vaccinated population)/(People count)) \*100
+
+To get Vaccinated population we will be doing Target_Vaccination - Unvaccinated = Vaccinated population
+
+```{r}
+VR <- vac_jkt %>%
+  inner_join(jkt_sf, by=c("Sub_District" = "Sub_District")) %>%
+  group_by(Sub_District, Date) %>%
+  dplyr::summarise(`Vaccination_Rate` = ((Target_Vaccination - Unvaccinated)/ Target_Vaccination) * 100) %>%
+  ungroup() %>% pivot_wider(names_from = Date,
+              values_from = Vaccination_Rate)
+```
+
+```{r}
+jkt <- st_as_sf(jkt)
+
+VR <- VR%>% left_join(jkt_sf, by=c("Sub_District"="Sub_District"))
+VR <- st_as_sf(VR)
+
+```
+
+# Plotting monthly vaccination rate
+
+First we will plot the rate map for 31st of July 2021
+
+```{r}
+tmap_mode("plot")
+tm_shape(VR)+
+  tm_fill("2021-07-31", 
+          n= 6,
+          style = "jenks", 
+          title = "VR") +
+  tm_layout(main.title = "-",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.height = 0.5, 
+            legend.width = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+```
+
+Now to plot the rate map for the rest of the 11 months together. We will do this using a function
+
+```{r}
+jenks_plot <- function(df, varname) {
+  tm_shape(VR) +
+    tm_polygons() +
+  tm_shape(df) +
+    tm_fill(varname, 
+          n= 6,
+          style = "jenks", 
+          title = "Monthly vaccination rate") +
+    tm_layout(main.title = varname,
+          main.title.position = "center",
+          main.title.size = 1.2,
+          legend.height = 0.45, 
+          legend.width = 0.35,
+          frame = TRUE) +
+    tm_borders(alpha = 0.5)
+}
+```
+
+### 31 July 2021 to 31 October 2021
+
+```{r}
+tmap_mode("plot")
+tmap_arrange(jenks_plot(VR, "2021-07-31"),
+             jenks_plot(VR, "2021-08-31"),
+             jenks_plot(VR, "2021-09-30"),
+             jenks_plot(VR, "2021-10-31"))
+```
+
+### 30 November 2021 to 27 February 2022
+
+```{r}
+tmap_arrange(
+  jenks_plot(VR, "2021-11-30"),
+  jenks_plot(VR, "2021-12-31"),
+  jenks_plot(VR, "2022-01-31"),
+  jenks_plot(VR, "2022-02-27"))
+```
+
+### 31 March 2022 to 30 June 2022
+
+```{r}
+tmap_arrange(
+            jenks_plot(VR, "2022-03-31"),
+             jenks_plot(VR, "2022-04-30"),
+             jenks_plot(VR, "2022-05-31"),
+             jenks_plot(VR, "2022-06-30"))
+```
+
+## Observation
+
+The vaccination rates were of course uneven across the sub-districts (Kelurahan). During the first four months of when the vaccinations were being rolled out ( 31 July 2021 to 31 October 2021 ), we can notice dark coloured spots in sub-districts such as Penjaringan, Makasar, Kelapa Gading. This shows that in those states they were able to set up facilities to get more people vaccinated as fast as possible and was able to facilitate large numbers of vaccinations per month.
+
+sub-districts such as Tanjung Priok, Kelapa Gading, and Kemayoran have always maintained their high monthly vaccination rates in the period from July 2021 to June 2022. This high vaccination rate steadily slowed down towards the end, but in these states a good portion of the populace was able to get access to vaccination as soon as possible.
+
+Some sub-districts still retained their lower vaccination rates throughout the year. This could be due to a variety of reasons such as large anti-vaccine sentiments spreading through these regions, or insufficient facilities to increase vaccination rates. Though, by following these trends, by now these regions should have significantly higher vaccination rates.
+
+# Local Gi\* analysis
+
+## Creating a Time Series object
+
+Recreate Vaccination rate dataframe VR but this time without the pivot wider
+
+```{r}
+VR <- vac_jkt %>%
+  inner_join(jkt_sf, by=c("Sub_District" = "Sub_District")) %>%
+  group_by(Sub_District, Date) %>%
+  dplyr::summarise(`Vaccination_Rate` = ((Target_Vaccination - Unvaccinated)/ Target_Vaccination) * 100)
+```
+
+Left joining to give VR a geometry column
+
+```{r}
+VR <- VR%>% left_join(jkt_sf, by=c("Sub_District"="Sub_District"))
+VR <- st_as_sf(VR)
+```
+
+Picking out just the appropriate columns from VR
+
+```{r}
+VR <- VR[, 0:3]
+```
+
+Creating spacetime object
+
+```{r}
+vac_st <- as_spacetime(ungroup(VR), .loc_col="Sub_District", .time_col="Date")%>% ungroup()
+```
+
+Checking to see if the spacetime object is a cube
+
+```{r}
+is_spacetime_cube(vac_st)
+```
+
+## Computing Gi\*
+
+### Deriving spatial weights
+
+```{r}
+vac_nb <- vac_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                  scale = 1,
+                                  alpha = 1),
+         .before = 1) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
+```
+
+```{r}
+head(vac_nb)
+```
+
+## Computing Gi\*
+
+```{r}
+gi_stars <- vac_nb %>% 
+  group_by(Date) %>%
+  mutate(gi_star = local_gstar_perm(
+    `Vaccination_Rate`, nb, wt, nsim = 99),
+    .before = 1) %>% 
+  unnest(gi_star)
+```
+
+```{r}
+gi_plot <- gi_stars%>% left_join(jkt_sf, by=c("Sub_District"="Sub_District"))
+gi_plot <- st_as_sf(gi_plot)
+```
+
+### visualizing Gi\*
+
+```{r}
+tmap_mode("plot")
+tm_shape(gi_plot) +
+
+  tm_fill("gi_star") + 
+  
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+```{r}
+gi_sig <- gi_plot  %>%
+  filter(p_sim < 0.05)
+```
+
+```{r}
+gi_temp <- gi_sig%>%
+  filter(Date == "2022-06-30")
+```
+
+Now to plot Gi\* with only the significant values (i.e: where p \< 0.05) for the month of July 2022
+
+```{r}
+tmap_mode("plot")
+tm_shape(gi_plot) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(gi_temp) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.4)
+```
+
+## Observation
+
+Dark green areas indicate hotspots, i.e: Sub-districts with higher vaccination rates while Dark red areas indicate coldspots, i.e: Sub-districts with lower vaccination rates. The darkness of the shade indicates the intensity of the Gi\* values.
+
+We can see from this plot that in the later months, the Gi\* values are higher in the Southern Sub-Districts showing that there are higher number of vaccinations being given out around mid of 2022
+
+The Coldspots around the center Could indicate that the vaccination rate has gone down since the beginning and is now at a low
+
+## Mann-Kendall test
+
+```{r}
+mkt <- gi_stars %>% 
+  ungroup() %>% 
+  filter(Sub_District == "ANCOL") |> 
+  select(Sub_District, Date, gi_star)
+```
+
+Plotting the result using ggplot
+
+```{r}
+ggplot(data = mkt, 
+       aes(x = Date, 
+           y = gi_star)) +
+  geom_line() +
+  theme_light()
+```
+
+We can also create an interactive plot
+
+```{r}
+p <- ggplot(data = mkt, 
+       aes(x = Date, 
+           y = gi_star)) +
+  geom_line() +
+  theme_light()
+
+ggplotly(p)
+```
+
+```{r}
+mkt %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+in the above table, sl is the p value. There is a major downward trend which stabilizes after a point
+
+```{r}
+ehsa <- gi_stars %>%
+  group_by(Date) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+
+## Arrange to show significant emerging hot/ cold spots
+
+```{r}
+emerging <- ehsa %>% 
+  arrange(sl, abs(tau)) %>% 
+  slice(1:5)
+```
+
+## Performing emerging hotspot analysis
+
+```{r}
+ehsa <- emerging_hotspot_analysis(
+  x = vac_st, 
+  .var = "Vaccination_Rate", 
+  k = 1, 
+  nsim = 99
+)
+```
+
+### Visualizing distribution of EHSA classes
+
+```{r}
+ggplot(data = ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+### Visualizing EHSA
+
+```{r}
+
+jkt_ehsa <- jkt_sf %>%left_join(ehsa,by = c("Sub_District" = "location"))
+```
+
+```{r}
+ehsa_sig <- jkt_ehsa  %>%
+  filter(p_value < 0.05)
+tmap_mode("plot")
+tm_shape(jkt_ehsa) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(ehsa_sig) +
+  tm_fill("classification") + 
+  tm_borders(alpha = 0.4)
+```
+
+## Observation
+
+This plot shows the oscillation coldspots, oscillating hotspots, sporadic coldspots, and spots where there are no patterns detected
+
+This plot remains consistent with the distribution visualization bar graph that we plotted above where we can see that the concentration of oscillation hotspots is the highest, and this remains consistent with what we saw in Gi\* analysis where the Southern Sub-districts are still the ones which have the largest number of hotspots. Sporadic coldspots remain the second most, followed by oscillating, then points with no patterns.
+
+This shows that the facilities to better vaccinate large groups was more present in the Sub-Districts that show oscillating hotspots, which would have gradually flattened out over time. Sub-districts with oscillating coldspots consistently had low vaccination rates, but over time would have been able to get more of the population to get vaccinated
