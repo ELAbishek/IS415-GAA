@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-02-28">
+<meta name="dcterms.date" content="2023-03-01">
 
 <title>IS415-GAA - Take home assignment 2</title>
 <style>
@@ -276,17 +276,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <ul class="collapse">
   <li><a href="#joining-data-by-sub-district" id="toc-joining-data-by-sub-district" class="nav-link" data-scroll-target="#joining-data-by-sub-district">Joining data by sub district</a></li>
   </ul></li>
-  <li><a href="#visualization" id="toc-visualization" class="nav-link" data-scroll-target="#visualization">Visualization</a>
+  <li><a href="#vaccination-rates-mapping" id="toc-vaccination-rates-mapping" class="nav-link" data-scroll-target="#vaccination-rates-mapping">Vaccination Rates mapping</a>
   <ul class="collapse">
   <li><a href="#dealing-with-mismatched-sub-district-names" id="toc-dealing-with-mismatched-sub-district-names" class="nav-link" data-scroll-target="#dealing-with-mismatched-sub-district-names">Dealing with mismatched sub-district names</a></li>
   <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"></a></li>
   </ul></li>
-  <li><a href="#vaccination-rate-calculation" id="toc-vaccination-rate-calculation" class="nav-link" data-scroll-target="#vaccination-rate-calculation">Vaccination Rate calculation</a></li>
+  <li><a href="#vaccination-rate-calculation" id="toc-vaccination-rate-calculation" class="nav-link" data-scroll-target="#vaccination-rate-calculation">Vaccination Rate calculation</a>
+  <ul class="collapse">
   <li><a href="#plotting-monthly-vaccination-rate" id="toc-plotting-monthly-vaccination-rate" class="nav-link" data-scroll-target="#plotting-monthly-vaccination-rate">Plotting monthly vaccination rate</a>
   <ul class="collapse">
   <li><a href="#july-2021-to-31-october-2021" id="toc-july-2021-to-31-october-2021" class="nav-link" data-scroll-target="#july-2021-to-31-october-2021">31 July 2021 to 31 October 2021</a></li>
   <li><a href="#november-2021-to-27-february-2022" id="toc-november-2021-to-27-february-2022" class="nav-link" data-scroll-target="#november-2021-to-27-february-2022">30 November 2021 to 27 February 2022</a></li>
   <li><a href="#march-2022-to-30-june-2022" id="toc-march-2022-to-30-june-2022" class="nav-link" data-scroll-target="#march-2022-to-30-june-2022">31 March 2022 to 30 June 2022</a></li>
+  </ul></li>
   <li><a href="#observation" id="toc-observation" class="nav-link" data-scroll-target="#observation">Observation</a></li>
   </ul></li>
   <li><a href="#local-gi-analysis" id="toc-local-gi-analysis" class="nav-link" data-scroll-target="#local-gi-analysis">Local Gi* analysis</a>
@@ -303,11 +305,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#observation-1" id="toc-observation-1" class="nav-link" data-scroll-target="#observation-1">Observation</a></li>
   <li><a href="#mann-kendall-test" id="toc-mann-kendall-test" class="nav-link" data-scroll-target="#mann-kendall-test">Mann-Kendall test</a></li>
   <li><a href="#arrange-to-show-significant-emerging-hot-cold-spots" id="toc-arrange-to-show-significant-emerging-hot-cold-spots" class="nav-link" data-scroll-target="#arrange-to-show-significant-emerging-hot-cold-spots">Arrange to show significant emerging hot/ cold spots</a></li>
-  <li><a href="#performing-emerging-hotspot-analysis" id="toc-performing-emerging-hotspot-analysis" class="nav-link" data-scroll-target="#performing-emerging-hotspot-analysis">Performing emerging hotspot analysis</a>
+  <li><a href="#performing-emerging-hotspot-analysis" id="toc-performing-emerging-hotspot-analysis" class="nav-link" data-scroll-target="#performing-emerging-hotspot-analysis">Performing emerging hotspot analysis</a></li>
+  </ul></li>
+  <li><a href="#ehsa-emerging-hot-spot-analysis" id="toc-ehsa-emerging-hot-spot-analysis" class="nav-link" data-scroll-target="#ehsa-emerging-hot-spot-analysis">EHSA (Emerging Hot Spot Analysis)</a>
   <ul class="collapse">
   <li><a href="#visualizing-distribution-of-ehsa-classes" id="toc-visualizing-distribution-of-ehsa-classes" class="nav-link" data-scroll-target="#visualizing-distribution-of-ehsa-classes">Visualizing distribution of EHSA classes</a></li>
   <li><a href="#visualizing-ehsa" id="toc-visualizing-ehsa" class="nav-link" data-scroll-target="#visualizing-ehsa">Visualizing EHSA</a></li>
-  </ul></li>
   <li><a href="#observation-2" id="toc-observation-2" class="nav-link" data-scroll-target="#observation-2">Observation</a></li>
   </ul></li>
   </ul>
@@ -329,7 +332,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 28, 2023</p>
+      <p class="date">March 1, 2023</p>
     </div>
   </div>
   
@@ -488,13 +491,10 @@ Projected CRS: DGN95 / Indonesia TM-3 zone 54.1
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># in the folder 'data/aspatial', find files with the extension '.xlsx' and add it to our fileslist </span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the full.names=TRUE prepends the directory path to the file names, giving a relative file path - otherwise, only the file names (not the paths) would be returned </span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reference: https://stat.ethz.ch/R-manual/R-devel/library/base/html/list.files.html</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>fileslist <span class="ot">&lt;-</span><span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"data/aspatial"</span>, <span class="at">pattern =</span> <span class="st">"*.xlsx"</span>, <span class="at">full.names=</span><span class="cn">TRUE</span>)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># afterwards, for every element in fileslist, apply aspatial_process function</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>dflist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_along</span>(fileslist), <span class="cf">function</span>(x) <span class="fu">aspatial_preprocess</span>(fileslist[x]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fileslist <span class="ot">&lt;-</span><span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"data/aspatial"</span>, <span class="at">pattern =</span> <span class="st">"*.xlsx"</span>, <span class="at">full.names=</span><span class="cn">TRUE</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>dflist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_along</span>(fileslist), <span class="cf">function</span>(x) <span class="fu">aspatial_preprocess</span>(fileslist[x]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>vac_jkt <span class="ot">&lt;-</span> <span class="fu">ldply</span>(dflist, data.frame)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -616,8 +616,8 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 </div>
 </section>
 </section>
-<section id="visualization" class="level1">
-<h1>Visualization</h1>
+<section id="vaccination-rates-mapping" class="level1">
+<h1>Vaccination Rates mapping</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>vac <span class="ot">=</span> <span class="fu">tm_shape</span>(jkt)<span class="sc">+</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"Vaccinated"</span>) <span class="sc">+</span></span>
@@ -780,9 +780,8 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>VR <span class="ot">&lt;-</span> VR<span class="sc">%&gt;%</span> <span class="fu">left_join</span>(jkt_sf, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"Sub_District"</span><span class="ot">=</span><span class="st">"Sub_District"</span>))</span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>VR <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(VR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="plotting-monthly-vaccination-rate" class="level1">
-<h1>Plotting monthly vaccination rate</h1>
+<section id="plotting-monthly-vaccination-rate" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-monthly-vaccination-rate">Plotting monthly vaccination rate</h2>
 <p>First we will plot the rate map for 31st of July 2021</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
@@ -859,6 +858,7 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <p><img src="Takehome_ex2_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+</section>
 </section>
 <section id="observation" class="level2">
 <h2 class="anchored" data-anchor-id="observation">Observation</h2>
@@ -992,7 +992,7 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <div class="cell">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>mkt <span class="ot">&lt;-</span> gi_stars <span class="sc">%&gt;%</span> </span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Sub_District <span class="sc">==</span> <span class="st">"ANCOL"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Sub_District <span class="sc">==</span> <span class="st">"GLODOK"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Sub_District, Date, gi_star)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Plotting the result using ggplot</p>
@@ -1016,8 +1016,8 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-bc212714d425f71495ef" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-bc212714d425f71495ef">{"x":{"data":[{"x":[18839,18870,18900,18931,18961,18992,19023,19050,19082,19112,19143,19173],"y":[2.07776786463371,1.95879817160444,0.387510888924714,-0.821987235152629,-1.11898252077143,-0.974611838453084,-0.547951745524385,-0.471557221095882,-0.543037534694721,-0.398530978425604,-0.7178688928673,-0.606673447114118],"text":["Date: 2021-07-31<br />gi_star:  2.0777679","Date: 2021-08-31<br />gi_star:  1.9587982","Date: 2021-09-30<br />gi_star:  0.3875109","Date: 2021-10-31<br />gi_star: -0.8219872","Date: 2021-11-30<br />gi_star: -1.1189825","Date: 2021-12-31<br />gi_star: -0.9746118","Date: 2022-01-31<br />gi_star: -0.5479517","Date: 2022-02-27<br />gi_star: -0.4715572","Date: 2022-03-31<br />gi_star: -0.5430375","Date: 2022-04-30<br />gi_star: -0.3985310","Date: 2022-05-31<br />gi_star: -0.7178689","Date: 2022-06-30<br />gi_star: -0.6066734"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":37.2602739726027},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[18822.3,19189.7],"tickmode":"array","ticktext":["Okt 2021","Jan 2022","Apr 2022","Jul 2022"],"tickvals":[18901,18993,19083,19174],"categoryorder":"array","categoryarray":["Okt 2021","Jan 2022","Apr 2022","Jul 2022"],"nticks":null,"ticks":"outside","tickcolor":"rgba(179,179,179,1)","ticklen":3.65296803652968,"tickwidth":0.33208800332088,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(222,222,222,1)","gridwidth":0.33208800332088,"zeroline":false,"anchor":"y","title":{"text":"Date","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.27882004004168,2.23760538390396],"tickmode":"array","ticktext":["-1","0","1","2"],"tickvals":[-1,0,1,2],"categoryorder":"array","categoryarray":["-1","0","1","2"],"nticks":null,"ticks":"outside","tickcolor":"rgba(179,179,179,1)","ticklen":3.65296803652968,"tickwidth":0.33208800332088,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(222,222,222,1)","gridwidth":0.33208800332088,"zeroline":false,"anchor":"x","title":{"text":"gi_star","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(179,179,179,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"a78403d661c":{"x":{},"y":{},"type":"scatter"}},"cur_data":"a78403d661c","visdat":{"a78403d661c":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-92586e07974859f6662b" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-92586e07974859f6662b">{"x":{"data":[{"x":[18839,18870,18900,18931,18961,18992,19023,19050,19082,19112,19143,19173],"y":[3.50111170297446,4.31941524162891,3.65856497786875,3.94694017481021,2.87253965177964,3.23447227700256,2.88878766519807,2.60658983170689,3.00826269457234,3.208462170278,2.78734435437842,3.06626593873415],"text":["Date: 2021-07-31<br />gi_star: 3.501112","Date: 2021-08-31<br />gi_star: 4.319415","Date: 2021-09-30<br />gi_star: 3.658565","Date: 2021-10-31<br />gi_star: 3.946940","Date: 2021-11-30<br />gi_star: 2.872540","Date: 2021-12-31<br />gi_star: 3.234472","Date: 2022-01-31<br />gi_star: 2.888788","Date: 2022-02-27<br />gi_star: 2.606590","Date: 2022-03-31<br />gi_star: 3.008263","Date: 2022-04-30<br />gi_star: 3.208462","Date: 2022-05-31<br />gi_star: 2.787344","Date: 2022-06-30<br />gi_star: 3.066266"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":43.1050228310502},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[18822.3,19189.7],"tickmode":"array","ticktext":["Okt 2021","Jan 2022","Apr 2022","Jul 2022"],"tickvals":[18901,18993,19083,19174],"categoryorder":"array","categoryarray":["Okt 2021","Jan 2022","Apr 2022","Jul 2022"],"nticks":null,"ticks":"outside","tickcolor":"rgba(179,179,179,1)","ticklen":3.65296803652968,"tickwidth":0.33208800332088,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(222,222,222,1)","gridwidth":0.33208800332088,"zeroline":false,"anchor":"y","title":{"text":"Date","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2.52094856121079,4.40505651212501],"tickmode":"array","ticktext":["3.0","3.5","4.0"],"tickvals":[3,3.5,4],"categoryorder":"array","categoryarray":["3.0","3.5","4.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(179,179,179,1)","ticklen":3.65296803652968,"tickwidth":0.33208800332088,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(222,222,222,1)","gridwidth":0.33208800332088,"zeroline":false,"anchor":"x","title":{"text":"gi_star","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(179,179,179,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"2550298e2cb8":{"x":{},"y":{},"type":"scatter"}},"cur_data":"2550298e2cb8","visdat":{"2550298e2cb8":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div class="cell">
@@ -1028,9 +1028,9 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">unnest_wider</span>(mk)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 x 5
-     tau    sl     S     D  varS
-   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1 -0.242 0.304   -16  66.0  213.</code></pre>
+     tau     sl     S     D  varS
+   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 -0.424 0.0641   -28  66.0  213.</code></pre>
 </div>
 </div>
 <p>in the above table, sl is the p value. There is a major downward trend which stabilizes after a point</p>
@@ -1061,6 +1061,10 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nsim =</span> <span class="dv">99</span></span>
 <span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+</section>
+<section id="ehsa-emerging-hot-spot-analysis" class="level1">
+<h1>EHSA (Emerging Hot Spot Analysis)</h1>
 <section id="visualizing-distribution-of-ehsa-classes" class="level3">
 <h3 class="anchored" data-anchor-id="visualizing-distribution-of-ehsa-classes">Visualizing distribution of EHSA classes</h3>
 <div class="cell">
@@ -1091,7 +1095,6 @@ $ TOTAL.VAKSIN..DIBERIKAN &lt;dbl&gt; 36042, 44800, 42925, 15348, 42415, 33278, 
 <p><img src="Takehome_ex2_files/figure-html/unnamed-chunk-55-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
 </section>
 <section id="observation-2" class="level2">
 <h2 class="anchored" data-anchor-id="observation-2">Observation</h2>

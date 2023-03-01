@@ -120,12 +120,10 @@ aspatial_preprocess <- function(filepath){
 ```
 
 ```{r}
-# in the folder 'data/aspatial', find files with the extension '.xlsx' and add it to our fileslist 
-# the full.names=TRUE prepends the directory path to the file names, giving a relative file path - otherwise, only the file names (not the paths) would be returned 
-# reference: https://stat.ethz.ch/R-manual/R-devel/library/base/html/list.files.html
+
 fileslist <-list.files(path = "data/aspatial", pattern = "*.xlsx", full.names=TRUE)
 
-# afterwards, for every element in fileslist, apply aspatial_process function
+
 dflist <- lapply(seq_along(fileslist), function(x) aspatial_preprocess(fileslist[x]))
 ```
 
@@ -198,7 +196,7 @@ jkt <- left_join(jkt_sf, vac_jkt,
                               )
 ```
 
-# Visualization
+# Vaccination Rates mapping
 
 ```{r}
 vac = tm_shape(jkt)+
@@ -298,7 +296,7 @@ VR <- st_as_sf(VR)
 
 ```
 
-# Plotting monthly vaccination rate
+## Plotting monthly vaccination rate
 
 First we will plot the rate map for 31st of July 2021
 
@@ -498,7 +496,7 @@ The Coldspots around the center Could indicate that the vaccination rate has gon
 ```{r}
 mkt <- gi_stars %>% 
   ungroup() %>% 
-  filter(Sub_District == "ANCOL") |> 
+  filter(Sub_District == "GLODOK") |> 
   select(Sub_District, Date, gi_star)
 ```
 
@@ -561,6 +559,8 @@ ehsa <- emerging_hotspot_analysis(
   nsim = 99
 )
 ```
+
+# EHSA (Emerging Hot Spot Analysis)
 
 ### Visualizing distribution of EHSA classes
 
