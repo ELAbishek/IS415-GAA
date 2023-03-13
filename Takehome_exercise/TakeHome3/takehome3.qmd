@@ -1,0 +1,145 @@
+---
+title: Take home assignment 3
+date: "`r Sys.Date()`"
+format: html
+theme: superhero
+execute: 
+  message: false
+  warning: false
+editor: visual
+---
+
+# Import
+
+## Packages
+
+```{r}
+pacman::p_load(olsrr, GWmodel, corrplot, sf, tidyverse, readr, ggplot2, dplyr, tmap)
+```
+
+## Aspatial data
+
+We import asptial data and filter to obtain the data only for the period between 1st Jan 2021 to 31st Dec 2022
+
+```{r}
+resale <- read_csv("data/aspatial/resale-flat-prices-based-on-registration-date-from-jan-2017-onwards.csv") %>%
+  filter(month >= ('2021-01'), month <= ('2022-12'))
+```
+
+```{r}
+omhdb <- read_csv("data/aspatial/hdb_onemap_coords.csv")
+```
+
+```{r}
+omMall <- read_csv("data/aspatial/mall_coordinates_updated.csv")
+```
+
+## Geospatial data
+
+```{r}
+mrt_sf <- st_read(dsn="data/geospatial/TrainStation_Feb2023",
+                      layer="RapidTransitSystemStation")
+
+mrt_sf <- mrt_sf %>% 
+st_cast("MULTIPOLYGON") %>%
+st_make_valid() %>%
+st_centroid()
+```
+
+```{r}
+mpsz_sf <- st_read(dsn = "data/geospatial/mpsz", layer="MP14_SUBZONE_WEB_PL")
+```
+
+```{r}
+bustop_sf <- st_read(dsn = "data/geospatial/BusStop_Feb2023", layer="BusStop")
+```
+
+```{r}
+elder_sf <- st_read(dsn = "data/geospatial/Eldercare", layer="ELDERCARE")
+```
+
+```{r}
+super_sf <- st_read("data/geospatial/supermarkets.kml")
+```
+
+```{r}
+pre_sf <- st_read("data/geospatial/preschools-location.kml")
+```
+
+```{r}
+kinder_sf <- st_read("data/geospatial/kindergartens.kml")
+```
+
+```{r}
+hawker_sf <- st_read("data/geospatial/HawkerCentres/hawker-centres-kml.kml")
+```
+
+```{r}
+parks_sf <- st_read("data/geospatial/Parks/parks.kml")
+```
+
+```{r}
+child_sf <- st_read("data/geospatial/childcare.geojson")
+```
+
+## Choosing columns
+
+```{r}
+child_sf <- child_sf %>%
+  select(c(1))
+
+elder_sf <- elder_sf %>%
+  select(c(1))
+
+bustop_sf <- bustop_sf %>%
+  select(c(1))
+
+hawker_sf <- hawker_sf %>%
+  select(c(1))
+
+kinder_sf <- kinder_sf %>%
+  select(c(1))
+
+mrt_sf <- mrt_sf %>%
+  select(c(1))
+
+parks_sf <- parks_sf %>%
+  select(c(1))
+
+pre_sf <- pre_sf %>%
+  select(c(1))
+
+super_sf <- super_sf %>%
+  select(c(1))
+
+omMall <- omMall %>%
+  select(c(2))
+```
+
+```{r}
+length(which(st_is_valid(mpsz_sf) == FALSE))
+
+length(which(st_is_valid(child_sf) == FALSE))
+
+length(which(st_is_valid(elder_sf) == FALSE))
+
+length(which(st_is_valid(bustop_sf) == FALSE))
+
+length(which(st_is_valid(hawker_sf) == FALSE))
+
+length(which(st_is_valid(kinder_sf) == FALSE))
+
+length(which(st_is_valid(mrt_sf) == FALSE))
+
+length(which(st_is_valid(parks_sf) == FALSE))
+
+length(which(st_is_valid(pre_sf) == FALSE))
+
+length(which(st_is_valid(super_sf) == FALSE))
+
+```
+
+```{r}
+mpsz_sf <- st_make_valid(mpsz_sf)
+length(which(st_is_valid(mpsz_sf) == FALSE))
+```

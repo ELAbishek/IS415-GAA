@@ -76,5 +76,14 @@
   },
   "hands-on-exercise/wk9/hoe_wk9.qmd": {
     "hoe_wk9.html": "db684f4c"
+  },
+  "Takehome_exercise/TakeHome3/takehome3.qmd": {
+    "takehome3.html": "b15c0cbc"
+  },
+  "in-class-exercise/wk10/ice_wk10.qmd": {
+    "ice_wk10.html": "f6fd2afa"
+  },
+  "in-class-exercise/wk10/data/geospatial/MPSZ-2019.qmd": {
+    "MPSZ-2019.html": "78655c44"
   }
 }
