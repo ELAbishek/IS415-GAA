@@ -85,5 +85,17 @@
   },
   "in-class-exercise/wk10/data/geospatial/MPSZ-2019.qmd": {
     "MPSZ-2019.html": "78655c44"
+  },
+  "in-class-exercise/wk11/ice_wk11.qmd": {
+    "ice_wk11.html": "6e6edaa2"
+  },
+  "in-class-exercise/wk11/data/geospatial/ELDERCARE.qmd": {
+    "ELDERCARE.html": "a6213651"
+  },
+  "in-class-exercise/wk11/data/geospatial/hexagons.qmd": {
+    "hexagons.html": "01491dbc"
+  },
+  "Takehome_exercise/TakeHome3/data/geospatial/mpsz/MPSZ-2019.qmd": {
+    "MPSZ-2019.html": "152cbd58"
   }
 }
