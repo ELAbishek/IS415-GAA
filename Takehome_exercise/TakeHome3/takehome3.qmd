@@ -22,7 +22,7 @@ pacman::p_load('sf', 'tidyverse', 'tmap', 'spdep',
 
 ## Aspatial data
 
-We import asptial data and filter to obtain the data only for the period between 1st Jan 2021 to 31st Dec 2022, and that too we will only be observing the flats with 3, 4, 5 rooms
+We import asptial data and filter to obtain the data only for the period between 1st Jan 2021 to 31st Dec 2022, and that too we will only be observing the flats with 5 rooms
 
 ```{r}
 resale <- read_csv("data/aspatial/resale-flat-prices-based-on-registration-date-from-jan-2017-onwards.csv") %>%
@@ -37,20 +37,28 @@ omhdb <- read_csv("data/aspatial/hdb_onemap_coords.csv")
 omMall <- read_csv("data/aspatial/mall_coordinates_updated.csv")
 ```
 
+Lets turn the mall dataset into an sf dataframe
+
 ```{r}
 mall_sf <- omMall%>%
   st_as_sf(coords=c("longitude", "latitude"), crs=4326) %>%
   st_transform(3414)
 ```
 
+This dataset will contain the top 20 primary schools in Singapore
+
 ```{r}
 prisch <- read_csv("data/aspatial/primaryschoolsg.csv")%>%
   filter(Name %in% c("Nanyang Primary School","Catholic High School (Primary)","Tao Nan School","Nan Hua Primary School","St. Hilda's Primary School","Henry Park Primary School","Anglo-Chinese School (Primary)","Raffles Girls' Primary School",  "Pei Hwa Presbyterian Primary School","CHIJ St. Nicholas Girls' School","Rosyth School","Kong Hwa School","Poi Ching School","Holy Innocents' Primary School","Ai Tong School","Red Swastika School","Maris Stella High School","Rulang Primary School","Pei Chun Public School","Singapore Chinese Girls' Primary School") )
 ```
 
+This dataset will just be the collection of primary schools in singapore
+
 ```{r}
 prsc <- read_csv("data/aspatial/primaryschoolsg.csv")
 ```
+
+Converting them both to geospatial datasets
 
 ```{r}
 prsc_sf <- st_as_sf(prsc, 
@@ -68,14 +76,12 @@ prisch_sf <- st_as_sf(prisch,
 
 ## Geospatial data
 
+We shall take MRT exits since for larger MRT stations, these are more accurate than taking MRT centroids.
+
 ```{r}
 mrt_sf <- st_read(dsn="data/geospatial/TrainStationExit",
                       layer="Train_Station_Exit_Layer")
 
-#mrt_sf <- mrt_sf %>% 
-#st_cast("MULTIPOLYGON") %>%
-#st_make_valid() %>%
-#st_centroid()
 ```
 
 ```{r}
@@ -180,7 +186,7 @@ length(which(st_is_valid(mall_sf) == FALSE))
 
 ```
 
-mpsz has 6 rows will invalid geometries so we will be making them valid
+mpsz has 6 rows with invalid geometries so we will be making them valid
 
 ```{r}
 mpsz_sf <- st_make_valid(mpsz_sf)
@@ -214,7 +220,7 @@ super_sf[rowSums(is.na(super_sf))!=0,]
 prisch_sf[rowSums(is.na(prisch_sf))!=0,]
 ```
 
-Now rows have missing values, we can proceed with the analysis
+No rows have missing values, we can proceed with the analysis
 
 ## Checking CRS
 
@@ -231,6 +237,8 @@ st_crs(pre_sf)
 st_crs(super_sf)
 st_crs(prisch_sf)
 ```
+
+We will now change all the crs to 3414
 
 ```{r}
 mpsz_sf <- st_set_crs(mpsz_sf, 3414)
@@ -287,6 +295,8 @@ length(which(st_is_valid(mpsz_sf) == FALSE))
 
 ## Geocoding resale dataframe
 
+This function will geocode the resale dataset by using one map sg API.
+
 ```{r}
 library(httr)
 geocode <- function(block, streetname) {
@@ -310,7 +320,15 @@ geocode <- function(block, streetname) {
 
 This takes a really long time to run
 
-`{# {r} # resale$LATITUDE <- 0 # resale$LONGITUDE <- 0 #  # for (i in 1:nrow(resale)){ #   temp_output <- geocode(resale[i, 4], resale[i, 5]) #    #   resale$LATITUDE[i] <- temp_output$results.LATITUDE #   resale$LONGITUDE[i] <- temp_output$results.LONGITUDE # }`
+```{r}
+# resale$LATITUDE <- 0
+#resale$LONGITUDE <- 0 
+# for (i in 1:nrow(resale)){
+#   temp_output <- geocode(resale[i, 4], resale[i, 5])
+#   resale$LATITUDE[i] <- temp_output$results.LATITUDE 
+#   resale$LONGITUDE[i] <- temp_output$results.LONGITUDE 
+# }
+```
 
 ```{r}
 #write_rds(resale, "data/model/resale.rds")
@@ -367,10 +385,14 @@ resale_sf <- st_as_sf(resale,
   st_transform(crs = 3414)
 ```
 
+Converting remaining lease from character to numeric
+
 ```{r}
 #turning remaining lease from character to numeric
 resale_sf$remaining_lease <- as.numeric(as.character(resale_sf$remaining_lease))
 ```
+
+Turning all unique storey ranges to a numeric value
 
 ```{r}
 storeys <- sort(unique(resale_sf$storey_range))
@@ -385,6 +407,9 @@ storey_range_order <- data.frame(storeys, storey_order)
 resale_sf <- left_join(resale_sf, storey_range_order, by= c("storey_range" = "storeys"))
 ```
 
+Add in the age of unit into the dataset.\
+age of unit = current year (as of the data) - lease commence date
+
 ```{r}
 resale_sf <- resale_sf %>%
   add_column(age_of_unit = NA) %>%
@@ -392,6 +417,8 @@ resale_sf <- resale_sf %>%
     as.numeric(substr(resale_sf$month, 1, 4)) - 
       as.numeric(resale_sf$lease_commence_date)))
 ```
+
+### Adding in proximity and frequency
 
 ```{r}
 proximity <- function(df1, df2, varname) {
@@ -413,16 +440,6 @@ resale_sf <-
   proximity(., mall_sf, "PROX_MALL") %>%
   proximity(., super_sf, "PROX_SPRMKT")  %>%
   proximity(., prisch_sf, "PROX_TOPPRISCH")
-```
-
-```{r}
-num_radius <- function(df1, df2, varname, radius) {
-  dist_matrix <- st_distance(df1, df2) %>%
-    drop_units() %>%
-    as.data.frame()
-  df1[,varname] <- rowSums(dist_matrix <= radius)
-  return(df1)
-}
 ```
 
 ```{r}
@@ -495,6 +512,8 @@ tm_shape(resale_sf) +
 ```{r}
 tmap_mode("plot")
 ```
+
+Top 10 records in terms of price
 
 ```{r}
 town_mean <- aggregate(resale_sf[,"resale_price"], list(resale_sf$town), mean)
@@ -761,7 +780,9 @@ print(rf)
 gwRF_adaptive <- read_rds("data/model/gwRF_adaptive.rds")
 ```
 
-## Predicting by using test data
+# Predicting using test data
+
+## Predicting GWRF
 
 ```{r}
 test_data <- cbind(test_data, coords_test) %>%
@@ -769,10 +790,10 @@ test_data <- cbind(test_data, coords_test) %>%
 ```
 
 ```{r}
-# gwRF_pred <- predict.grf(gwRF_adaptive, 
-#                            test_data, 
+# gwRF_pred <- predict.grf(gwRF_adaptive,
+#                            test_data,
 #                            x.var.name="X",
-#                            y.var.name="Y", 
+#                            y.var.name="Y",
 #                            local.w=1,
 #                            global.w=0)
 ```
@@ -784,43 +805,49 @@ test_data <- cbind(test_data, coords_test) %>%
 ## Predicting OLS
 
 ```{r}
-# mlr_pred <- predict.lm(price_mlr, 
-#                            test_data, 
-#                            x.var.name="X",
-#                            y.var.name="Y", 
-#                            local.w=1,
-#                            global.w=0)
+mlr_pred <- predict.lm(price_mlr,
+                           test_data,
+                           x.var.name="X",
+                           y.var.name="Y",
+                           local.w=1,
+                           global.w=0)
 ```
 
 ```{r}
-# mlr_pred <- write_rds(mlr_pred, "data/model/mlr_pred.rds")
+mlr_pred <- write_rds(mlr_pred, "data/model/mlr_pred.rds")
 ```
 
 ## Predicting RF
 
 ```{r}
-# rf_pred <- predict.ranger(rf, 
-#                            test_data, 
-#                            x.var.name="X",
-#                            y.var.name="Y", 
-#                            local.w=1,
-#                            global.w=0)
+rf_pred <- predict(rf,test_data)
+```
+
+```{r}
+rf_pred <- write_rds(rf_pred, "data/model/rf_pred.rds")
 ```
 
 ### Converting the predicting output into data frame
 
-predicting for grf
+Creating GWRF prediction dataframe
 
 ```{r}
 GRF_pred <- read_rds("data/model/GRF_pred.rds")
 GRF_pred_df <- as.data.frame(GRF_pred)
 ```
 
-predicting for mlr
+Creating mlr prediction dataframe
 
 ```{r}
 mlr_pred <- read_rds("data/model/mlr_pred.rds")
 mlr_pred_df <- as.data.frame(mlr_pred)
+```
+
+Creating RF prediction dataframe
+
+```{r}
+rf_pred <- read_rds("data/model/rf_pred.rds")
+rf_pred_df <- as.data.frame(rf_pred)
 ```
 
 ```{r}
@@ -832,22 +859,63 @@ test_data_mlr <- cbind(test_data, mlr_pred)
 ```
 
 ```{r}
+test_data_rf <- cbind(test_data, rf_pred)
+```
+
+```{r}
 #write_rds(test_data_p, "data/model/test_data_p.rds")
 ```
 
 ## Calculating RMSE
 
 ```{r}
-rmse(test_data_p$resale_price, 
-     test_data_p$GRF_pred)
+mlr_pred_df <- read_rds("data/model/mlr_pred.rds") %>%
+  as.data.frame()
+
+colnames(mlr_pred_df) <- c("mlr_pred")
+
+rf_pred_df <- read_rds("data/model/rf_pred.rds")$predictions %>%
+  as.data.frame()
+
+colnames(rf_pred_df) <- c("rf_pred")
+
+gwRF_pred_df <- read_rds("data/model/grf_pred.rds") %>%
+  as.data.frame()
+
+colnames(gwRF_pred_df) <- c("gwrf_pred")
+
+prices_pred_df <- cbind(test_data$resale_price, mlr_pred_df, rf_pred_df,
+                        gwRF_pred_df) %>% 
+  rename("actual_price" = "test_data$resale_price")
+
+head(prices_pred_df)
 ```
+
+GWRF
 
 ```{r}
-rmse(test_data_mlr$resale_price, 
-     test_data_mlr$mlr_pred)
+
+sqrt(mean((prices_pred_df$actual_price - prices_pred_df$gwrf_pred)^2))
 ```
 
+OLS
+
+```{r}
+
+sqrt(mean((prices_pred_df$actual_price - prices_pred_df$mlr_pred)^2))
+```
+
+RF
+
+```{r}
+sqrt(mean((prices_pred_df$actual_price - prices_pred_df$rf_pred)^2))
+```
+
+Through root mean square error calculation we see that RMSE for GWRF prediction has the lowest value, thus showing that this method gives the best predictions of prices. While OLS method has a significantly higher RMSE, showing that it is the most unreliable
+
 ## Visualizing predicted values
+
+Just to visualize the results of RMSE calculation, lets plot a scatter plot graph
 
 ### GRF pred
 
@@ -867,6 +935,4 @@ ggplot(data = test_data_mlr,
   geom_point()
 ```
 
-### RF pred
-
-### GWR pred
+A good predictive model will have the plotted values close to the diagonal line. From our plotting of mlr_pred for OLS, and GRF pred for GWRF we can see that GWRF plotting is closer to the diagonal line. This plot is consistent with our RMSE calculation. hence we can conclude that the geographically weighted random forest method is the best in terms of predicting housing resale prices.

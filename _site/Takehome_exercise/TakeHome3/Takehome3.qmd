@@ -1,0 +1,938 @@
+---
+title: Take home assignment 3
+date: "`r Sys.Date()`"
+format: html
+theme: superhero
+execute: 
+  message: false
+  warning: false
+editor: visual
+---
+
+# Import
+
+## Packages
+
+```{r}
+pacman::p_load('sf', 'tidyverse', 'tmap', 'spdep', 
+             'onemapsgapi', 'units', 'matrixStats', 'readxl', 'jsonlite',
+             'olsrr', 'corrplot', 'ggpubr', 'GWmodel',
+             'devtools', 'kableExtra', 'plotly', 'ggthemes', 'SpatialML', 'Metrics','rsample')
+```
+
+## Aspatial data
+
+We import asptial data and filter to obtain the data only for the period between 1st Jan 2021 to 31st Dec 2022, and that too we will only be observing the flats with 5 rooms
+
+```{r}
+resale <- read_csv("data/aspatial/resale-flat-prices-based-on-registration-date-from-jan-2017-onwards.csv") %>%
+  filter(month >= ('2021-01'), month <= ('2022-12'), flat_type == "5 ROOM")
+```
+
+```{r}
+omhdb <- read_csv("data/aspatial/hdb_onemap_coords.csv")
+```
+
+```{r}
+omMall <- read_csv("data/aspatial/mall_coordinates_updated.csv")
+```
+
+Lets turn the mall dataset into an sf dataframe
+
+```{r}
+mall_sf <- omMall%>%
+  st_as_sf(coords=c("longitude", "latitude"), crs=4326) %>%
+  st_transform(3414)
+```
+
+This dataset will contain the top 20 primary schools in Singapore
+
+```{r}
+prisch <- read_csv("data/aspatial/primaryschoolsg.csv")%>%
+  filter(Name %in% c("Nanyang Primary School","Catholic High School (Primary)","Tao Nan School","Nan Hua Primary School","St. Hilda's Primary School","Henry Park Primary School","Anglo-Chinese School (Primary)","Raffles Girls' Primary School",  "Pei Hwa Presbyterian Primary School","CHIJ St. Nicholas Girls' School","Rosyth School","Kong Hwa School","Poi Ching School","Holy Innocents' Primary School","Ai Tong School","Red Swastika School","Maris Stella High School","Rulang Primary School","Pei Chun Public School","Singapore Chinese Girls' Primary School") )
+```
+
+This dataset will just be the collection of primary schools in singapore
+
+```{r}
+prsc <- read_csv("data/aspatial/primaryschoolsg.csv")
+```
+
+Converting them both to geospatial datasets
+
+```{r}
+prsc_sf <- st_as_sf(prsc, 
+                     coords = c("Longitude", "Latitude"), 
+                     crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+prisch_sf <- st_as_sf(prisch, 
+                     coords = c("Longitude", "Latitude"), 
+                     crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+## Geospatial data
+
+We shall take MRT exits since for larger MRT stations, these are more accurate than taking MRT centroids.
+
+```{r}
+mrt_sf <- st_read(dsn="data/geospatial/TrainStationExit",
+                      layer="Train_Station_Exit_Layer")
+
+```
+
+```{r}
+mpsz_sf <- st_read(dsn = "data/geospatial/mpsz", layer="MPSZ-2019")
+```
+
+```{r}
+bustop_sf <- st_read(dsn = "data/geospatial/BusStop_Feb2023", layer="BusStop")
+```
+
+```{r}
+elder_sf <- st_read(dsn = "data/geospatial/Eldercare", layer="ELDERCARE")
+```
+
+```{r}
+super_sf <- st_read("data/geospatial/supermarkets.kml")
+```
+
+```{r}
+pre_sf <- st_read("data/geospatial/preschools-location.kml")
+```
+
+```{r}
+kinder_sf <- st_read("data/geospatial/kindergartens.kml")
+```
+
+```{r}
+hawker_sf <- st_read("data/geospatial/HawkerCentres/hawker-centres-kml.kml")
+```
+
+```{r}
+parks_sf <- st_read("data/geospatial/Parks/parks.kml")
+```
+
+```{r}
+child_sf <- st_read("data/geospatial/childcare.geojson")
+```
+
+## Choosing columns
+
+```{r}
+child_sf <- child_sf %>%
+  select(c(1))
+
+elder_sf <- elder_sf %>%
+  select(c(1))
+
+bustop_sf <- bustop_sf %>%
+  select(c(1))
+
+hawker_sf <- hawker_sf %>%
+  select(c(1))
+
+kinder_sf <- kinder_sf %>%
+  select(c(1))
+
+mrt_sf <- mrt_sf %>%
+  select(c(1))
+
+parks_sf <- parks_sf %>%
+  select(c(1))
+
+pre_sf <- pre_sf %>%
+  select(c(1))
+
+super_sf <- super_sf %>%
+  select(c(1))
+
+prisch_sf <- prisch_sf %>%
+  select(c(1))
+
+#omMall <- omMall %>%
+# select(c(2))
+```
+
+## Checking for invalid geometries
+
+```{r}
+length(which(st_is_valid(mpsz_sf) == FALSE))
+
+length(which(st_is_valid(child_sf) == FALSE))
+
+length(which(st_is_valid(elder_sf) == FALSE))
+
+length(which(st_is_valid(bustop_sf) == FALSE))
+
+length(which(st_is_valid(hawker_sf) == FALSE))
+
+length(which(st_is_valid(kinder_sf) == FALSE))
+
+length(which(st_is_valid(mrt_sf) == FALSE))
+
+length(which(st_is_valid(parks_sf) == FALSE))
+
+length(which(st_is_valid(pre_sf) == FALSE))
+
+length(which(st_is_valid(super_sf) == FALSE))
+
+length(which(st_is_valid(prisch_sf) == FALSE))
+
+length(which(st_is_valid(mall_sf) == FALSE))
+
+```
+
+mpsz has 6 rows with invalid geometries so we will be making them valid
+
+```{r}
+mpsz_sf <- st_make_valid(mpsz_sf)
+length(which(st_is_valid(mpsz_sf) == FALSE))
+```
+
+## Checking for missing values
+
+```{r}
+
+mpsz_sf[rowSums(is.na(mpsz_sf))!=0,]
+
+child_sf[rowSums(is.na(child_sf))!=0,]
+
+elder_sf[rowSums(is.na(elder_sf))!=0,]
+
+bustop_sf[rowSums(is.na(bustop_sf))!=0,]
+
+hawker_sf[rowSums(is.na(hawker_sf))!=0,]
+
+kinder_sf[rowSums(is.na(kinder_sf))!=0,]
+
+mrt_sf[rowSums(is.na(mrt_sf))!=0,]
+
+parks_sf[rowSums(is.na(parks_sf))!=0,]
+
+pre_sf[rowSums(is.na(pre_sf))!=0,]
+
+super_sf[rowSums(is.na(super_sf))!=0,]
+
+prisch_sf[rowSums(is.na(prisch_sf))!=0,]
+```
+
+No rows have missing values, we can proceed with the analysis
+
+## Checking CRS
+
+```{r}
+st_crs(mpsz_sf)
+st_crs(bustop_sf)
+st_crs(child_sf)
+st_crs(elder_sf)
+st_crs(hawker_sf)
+st_crs(kinder_sf)
+st_crs(mall_sf)
+st_crs(mrt_sf)
+st_crs(pre_sf)
+st_crs(super_sf)
+st_crs(prisch_sf)
+```
+
+We will now change all the crs to 3414
+
+```{r}
+mpsz_sf <- st_set_crs(mpsz_sf, 3414)
+mrt_sf <- st_set_crs(mrt_sf, 3414)
+bustop_sf <- st_set_crs(bustop_sf, 3414)
+
+child_sf <- st_transform(child_sf, crs=3414)
+elder_sf <- st_transform(elder_sf, crs=3414)
+hawker_sf <- st_transform(hawker_sf, crs=3414)
+kinder_sf <- st_transform(kinder_sf, crs=3414)
+parks_sf <- st_transform(parks_sf, crs=3414)
+super_sf <- st_transform(super_sf, crs=3414)
+mall_sf <- st_transform(mall_sf, crs=3414)
+```
+
+## Visualization
+
+```{r}
+plot(st_geometry(mpsz_sf))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(mrt_sf) +
+  tm_dots(col="red", size=0.05)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(hawker_sf) +
+  tm_dots(alpha=0.5, #affects transparency of points
+          col="#d62828",
+          size=0.05) +
+tm_shape(parks_sf) +
+  tm_dots(alpha=0.5,
+          col="#f77f00",
+          size=0.05) +
+tm_shape(super_sf) +
+  tm_dots(alpha=0.5,
+          col="#fcbf49",
+          size=0.05) +
+tm_shape(mall_sf) +
+  tm_dots(alpha=0.5,
+          col="#eae2b7",
+          size=0.05)
+```
+
+## Geospatial data wrangling
+
+```{r}
+resale[rowSums(is.na(resale))!=0,]
+length(which(st_is_valid(mpsz_sf) == FALSE))
+```
+
+## Geocoding resale dataframe
+
+This function will geocode the resale dataset by using one map sg API.
+
+```{r}
+library(httr)
+geocode <- function(block, streetname) {
+  base_url <- "https://developers.onemap.sg/commonapi/search"
+  address <- paste(block, streetname, sep = " ")
+  query <- list("searchVal" = address, 
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  res <- GET(base_url, query = query)
+  restext<-content(res, as="text")
+  
+  output <- fromJSON(restext)  %>% 
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+
+  return(output)
+}
+```
+
+This takes a really long time to run
+
+```{r}
+# resale$LATITUDE <- 0
+#resale$LONGITUDE <- 0 
+# for (i in 1:nrow(resale)){
+#   temp_output <- geocode(resale[i, 4], resale[i, 5])
+#   resale$LATITUDE[i] <- temp_output$results.LATITUDE 
+#   resale$LONGITUDE[i] <- temp_output$results.LONGITUDE 
+# }
+```
+
+```{r}
+#write_rds(resale, "data/model/resale.rds")
+```
+
+```{r}
+resale <- read_rds("data/model/resale.rds")
+```
+
+```{r}
+unique(resale$storey_range)
+```
+
+```{r}
+str_list <- str_split(resale$remaining_lease, " ")
+
+for (i in 1:length(str_list)) {
+  if (length(unlist(str_list[i])) > 2) {
+      year <- as.numeric(unlist(str_list[i])[1])
+      month <- as.numeric(unlist(str_list[i])[3])
+      resale$remaining_lease[i] <- year + round(month/12, 2)
+  }
+  else {
+    year <- as.numeric(unlist(str_list[i])[1])
+    resale$remaining_lease[i] <- year
+  }
+}
+```
+
+## Determining CBD area
+
+```{r}
+lat <- 1.287953
+lng <- 103.851784
+
+cbd_sf <- data.frame(lat, lng) %>%
+  st_as_sf(coords = c("lng", "lat"), crs=4326) %>%
+  st_transform(crs=3414)
+```
+
+```{r}
+sum(is.na(resale$LATITUDE))
+sum(is.na(resale$LONGITUDE))
+```
+
+```{r}
+resale_sf <- st_as_sf(resale, 
+                      coords = c("LONGITUDE", 
+                                 "LATITUDE"), 
+                      # the geographical features are in longitude & latitude, in decimals
+                      # as such, WGS84 is the most appropriate coordinates system
+                      crs=4326) %>%
+  #afterwards, we transform it to SVY21, our desired CRS
+  st_transform(crs = 3414)
+```
+
+Converting remaining lease from character to numeric
+
+```{r}
+#turning remaining lease from character to numeric
+resale_sf$remaining_lease <- as.numeric(as.character(resale_sf$remaining_lease))
+```
+
+Turning all unique storey ranges to a numeric value
+
+```{r}
+storeys <- sort(unique(resale_sf$storey_range))
+```
+
+```{r}
+storey_order <- 1:length(storeys)
+storey_range_order <- data.frame(storeys, storey_order)
+```
+
+```{r}
+resale_sf <- left_join(resale_sf, storey_range_order, by= c("storey_range" = "storeys"))
+```
+
+Add in the age of unit into the dataset.\
+age of unit = current year (as of the data) - lease commence date
+
+```{r}
+resale_sf <- resale_sf %>%
+  add_column(age_of_unit = NA) %>%
+  mutate(age_of_unit = (
+    as.numeric(substr(resale_sf$month, 1, 4)) - 
+      as.numeric(resale_sf$lease_commence_date)))
+```
+
+### Adding in proximity and frequency
+
+```{r}
+proximity <- function(df1, df2, varname) {
+  dist_matrix <- st_distance(df1, df2) %>%
+    drop_units()
+  df1[,varname] <- rowMins(dist_matrix)
+  return(df1)
+}
+```
+
+```{r}
+resale_sf <-
+  proximity(resale_sf, cbd_sf, "PROX_CBD") %>%
+  proximity(., child_sf, "PROX_CHILDCARE") %>%
+  proximity(., elder_sf, "PROX_ELDERCARE") %>%
+  proximity(., hawker_sf, "PROX_HAWKER") %>%
+  proximity(., mrt_sf, "PROX_MRT") %>%
+  proximity(., parks_sf, "PROX_PARK") %>%
+  proximity(., mall_sf, "PROX_MALL") %>%
+  proximity(., super_sf, "PROX_SPRMKT")  %>%
+  proximity(., prisch_sf, "PROX_TOPPRISCH")
+```
+
+```{r}
+num_radius <- function(df1, df2, varname, radius) {
+  dist_matrix <- st_distance(df1, df2) %>%
+    drop_units() %>%
+    as.data.frame()
+  df1[,varname] <- rowSums(dist_matrix <= radius)
+  return(df1)
+}
+```
+
+```{r}
+resale_sf <-
+  num_radius(resale_sf, kinder_sf, "NUM_KNDRGTN", 350) %>%
+  num_radius(., child_sf, "NUM_CHILDCARE", 350) %>%
+  num_radius(., bustop_sf, "NUM_BUS_STOP", 350) %>%
+  num_radius(., prsc_sf, "NUM_PRI_SCH", 1000)
+```
+
+```{r}
+write_rds(resale_sf, "data/model/resale_sf.rds")
+```
+
+## Exploratory Data Analysis
+
+```{r}
+read_rds("data/model/resale_sf.rds")
+```
+
+```{r}
+glimpse(resale_sf)
+```
+
+```{r}
+summary(resale_sf$resale_price)
+```
+
+### graph
+
+```{r}
+ggplot(data=resale_sf, aes(x=resale_price)) +
+  geom_histogram(bins=20, color="black", fill="light blue") +
+    labs(title = "Distribution of Resale Prices",
+         x = "Resale Prices",
+         y = 'Frequency')
+```
+
+### Box plot
+
+```{r}
+ggplot(data = resale_sf, aes(x = '', y = resale_price)) +
+  geom_boxplot() + 
+  labs(x='', y='Resale Prices')
+```
+
+### point map
+
+```{r}
+tmap_mode("view")
+tmap_options(check.and.fix = TRUE)
+tm_shape(resale_sf) +  
+  tm_dots(col = "resale_price",
+          alpha = 0.6,
+          style="quantile") +
+  # sets minimum zoom level to 11, sets maximum zoom level to 14
+  tm_view(set.zoom.limits = c(11,14))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+Top 10 records in terms of price
+
+```{r}
+town_mean <- aggregate(resale_sf[,"resale_price"], list(resale_sf$town), mean)
+top10_town = top_n(town_mean, 10, `resale_price`) %>%
+  arrange(desc(`resale_price`))
+top10_town
+```
+
+```{r}
+AREA_SQM <- ggplot(data = resale_sf, aes(x = `floor_area_sqm`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+AGE_UNIT <- ggplot(data = resale_sf, aes(x = `age_of_unit`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+LEASE_YRS <- ggplot(data = resale_sf, aes(x = `remaining_lease`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_CBD <- ggplot(data = resale_sf, aes(x = `PROX_CBD`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_CHILDCARE <- ggplot(data = resale_sf, aes(x = `PROX_CHILDCARE`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_ELDERCARE <- ggplot(data = resale_sf, aes(x = `PROX_ELDERCARE`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_HAWKER <- ggplot(data = resale_sf, aes(x = `PROX_HAWKER`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_MRT <- ggplot(data = resale_sf, aes(x = `PROX_MRT`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_PARK <- ggplot(data = resale_sf, aes(x = `PROX_PARK`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_TOPPRISCH <- ggplot(data = resale_sf, aes(x = `PROX_TOPPRISCH`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_MALL <- ggplot(data = resale_sf, aes(x = `PROX_MALL`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+PROX_SPRMKT <- ggplot(data = resale_sf, aes(x = `PROX_SPRMKT`)) + 
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+
+```
+
+```{r}
+ggarrange(AREA_SQM, AGE_UNIT, LEASE_YRS, PROX_CBD, PROX_CHILDCARE, PROX_ELDERCARE, PROX_HAWKER, PROX_MRT, PROX_PARK, PROX_TOPPRISCH, PROX_MALL, PROX_SPRMKT, ncol = 3, nrow = 4)
+```
+
+```{r}
+NUM_CHILDCARE <- ggplot(data = resale_sf, aes(x = `NUM_CHILDCARE`)) +
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+NUM_KNDRGTN <- ggplot(data = resale_sf, aes(x = `NUM_KNDRGTN`)) +
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+NUM_BUS_STOP <- ggplot(data = resale_sf, aes(x = `NUM_BUS_STOP`)) +
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+NUM_PRI_SCH <- ggplot(data = resale_sf, aes(x = `NUM_PRI_SCH`)) +
+  geom_histogram(bins=20, color="black", fill = 'lightblue')
+
+
+ggarrange(NUM_KNDRGTN, NUM_CHILDCARE, NUM_BUS_STOP, NUM_PRI_SCH, ncol = 2, nrow = 3)
+```
+
+# Linear regression
+
+### Simple linear regression
+
+```{r}
+resale_slr <- lm(formula=resale_price ~ floor_area_sqm, data = resale_sf)
+```
+
+```{r}
+summary(resale_slr)
+```
+
+```{r}
+ggplot(data=resale_sf,  
+       aes(x=`floor_area_sqm`, y=`resale_price`)) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
+
+## Multiple linear regression
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(resale_sf, 
+                              prop = 6.5/10,)
+train_data <- training(resale_split)
+test_data <- testing(resale_split)
+```
+
+```{r}
+#write_rds(train_data, "data/model/train_data.rds")
+#write_rds(test_data, "data/model/test_data.rds")
+```
+
+### Compute correlation matrix
+
+```{r}
+mdata_nogeo <- resale_sf %>%
+  st_drop_geometry()
+corrplot::corrplot(cor(mdata_nogeo[c(7:7, 10:10, 12:26)]), 
+                   diag = FALSE, 
+                   order = "AOE",
+                   tl.pos = "td", 
+                   tl.cex = 0.5, 
+                   method = "number", 
+                   type = "upper")
+```
+
+### Retrieving stored data
+
+```{r}
+train_data <- read_rds("data/model/train_data.rds")
+test_data <- read_rds("data/model/test_data.rds")
+```
+
+## Building non spatial multiple linear regression
+
+```{r}
+# price_mlr <- lm(resale_price ~ floor_area_sqm + remaining_lease + age_of_unit + storey_order +
+#                   PROX_CBD + PROX_ELDERCARE + PROX_HAWKER +
+#                   PROX_MRT + PROX_PARK + PROX_MALL + 
+#                   PROX_SPRMKT + PROX_TOPPRISCH + NUM_KNDRGTN +
+#                   NUM_CHILDCARE + NUM_BUS_STOP +
+#                   NUM_PRI_SCH,
+#                 data=train_data,
+#                   eval = FALSE)
+# summary(price_mlr)
+```
+
+```{r}
+#write_rds(price_mlr, "data/model/price_mlr.rds" ) 
+```
+
+```{r}
+price_mlr <-read_rds("data/model/price_mlr.rds")
+```
+
+## GWR predictive model
+
+```{r}
+train_data_sp <- as_Spatial(train_data)
+train_data_sp
+```
+
+```{r}
+# bw_adaptive <- bw.gwr(resale_price ~ floor_area_sqm + remaining_lease + age_of_unit+ storey_order +
+#                   PROX_CBD + PROX_ELDERCARE + PROX_HAWKER +
+#                   PROX_MRT + PROX_PARK + PROX_MALL + 
+#                   PROX_SPRMKT + PROX_TOPPRISCH + NUM_KNDRGTN +
+#                   NUM_CHILDCARE + NUM_BUS_STOP +
+#                   NUM_PRI_SCH,
+#                   data=train_data_sp,
+#                   approach="CV",
+#                   kernel="gaussian",
+#                   adaptive=TRUE,
+#                   longlat=FALSE,
+#                   eval = FALSE)
+```
+
+```{r}
+#write_rds(bw_adaptive, "data/model/bw_adaptive.rds")
+```
+
+## Constructing adaptive bandwidth gwr model
+
+```{r}
+bw_adaptive <- read_rds("data/model/bw_adaptive.rds")
+```
+
+```{r}
+# gwr_adaptive <- gwr.basic(formula = resale_price ~ floor_area_sqm + remaining_lease+ storey_order +
+#                   PROX_CBD + PROX_ELDERCARE + PROX_HAWKER +
+#                   PROX_MRT + PROX_PARK + PROX_MALL + 
+#                   PROX_SPRMKT + PROX_TOPPRISCH + NUM_KNDRGTN +
+#                   NUM_CHILDCARE + NUM_BUS_STOP +
+#                   NUM_PRI_SCH,
+#                           data=train_data_sp,
+#                           bw=bw_adaptive, 
+#                           kernel = 'gaussian', 
+#                           adaptive=TRUE,
+#                           longlat = FALSE,
+#                   eval = FALSE)
+```
+
+```{r}
+#write_rds(gwr_adaptive, "data/model/gwr_adaptive.rds")
+```
+
+```{r}
+gwr_adaptive <- read_rds("data/model/gwr_adaptive.rds")
+gwr_adaptive
+```
+
+```{r}
+coords <- st_coordinates(resale_sf)
+coords_train <- st_coordinates(train_data)
+coords_test <- st_coordinates(test_data)
+```
+
+```{r}
+train_data <- train_data %>% 
+  st_drop_geometry()
+```
+
+## Calibrating random forest model
+
+```{r}
+# set.seed(1234)
+# rf <- ranger(resale_price ~ floor_area_sqm + remaining_lease+ storey_order +
+#                   PROX_CBD + PROX_ELDERCARE + PROX_HAWKER +
+#                   PROX_MRT + PROX_PARK + PROX_MALL + 
+#                   PROX_SPRMKT + PROX_TOPPRISCH + NUM_KNDRGTN +
+#                   NUM_CHILDCARE + NUM_BUS_STOP +
+#                   NUM_PRI_SCH,
+#              data=train_data)
+```
+
+```{r}
+#write_rds(rf, "data/model/rf.rds")
+```
+
+```{r}
+rf <- read_rds("data/model/rf.rds")
+```
+
+```{r}
+print(rf)
+```
+
+## Calibrating geographically random forest model
+
+### Calibrating using training data
+
+```{r}
+# set.seed(1234)
+# gwRF_adaptive <- grf(formula = resale_price ~ floor_area_sqm + remaining_lease+ storey_order +
+#                   PROX_CBD + PROX_ELDERCARE + PROX_HAWKER +
+#                   PROX_MRT + PROX_PARK + PROX_MALL + 
+#                   PROX_SPRMKT + PROX_TOPPRISCH + NUM_KNDRGTN +
+#                   NUM_CHILDCARE + NUM_BUS_STOP +
+#                   NUM_PRI_SCH,
+#                      dframe=train_data, 
+#                      bw=500,
+#                      ntree = 20,
+#                      kernel="adaptive",
+#                      coords=coords_train,
+#                      verbose = T)
+```
+
+```{r}
+#write_rds(gwRF_adaptive, "data/model/gwRF_adaptive.rds")
+```
+
+```{r}
+gwRF_adaptive <- read_rds("data/model/gwRF_adaptive.rds")
+```
+
+# Predicting using test data
+
+## Predicting GWRF
+
+```{r}
+test_data <- cbind(test_data, coords_test) %>%
+  st_drop_geometry()
+```
+
+```{r}
+# gwRF_pred <- predict.grf(gwRF_adaptive,
+#                            test_data,
+#                            x.var.name="X",
+#                            y.var.name="Y",
+#                            local.w=1,
+#                            global.w=0)
+```
+
+```{r}
+# GRF_pred <- write_rds(gwRF_pred, "data/model/GRF_pred.rds")
+```
+
+## Predicting OLS
+
+```{r}
+mlr_pred <- predict.lm(price_mlr,
+                           test_data,
+                           x.var.name="X",
+                           y.var.name="Y",
+                           local.w=1,
+                           global.w=0)
+```
+
+```{r}
+mlr_pred <- write_rds(mlr_pred, "data/model/mlr_pred.rds")
+```
+
+## Predicting RF
+
+```{r}
+rf_pred <- predict(rf,test_data)
+```
+
+```{r}
+rf_pred <- write_rds(rf_pred, "data/model/rf_pred.rds")
+```
+
+### Converting the predicting output into data frame
+
+Creating GWRF prediction dataframe
+
+```{r}
+GRF_pred <- read_rds("data/model/GRF_pred.rds")
+GRF_pred_df <- as.data.frame(GRF_pred)
+```
+
+Creating mlr prediction dataframe
+
+```{r}
+mlr_pred <- read_rds("data/model/mlr_pred.rds")
+mlr_pred_df <- as.data.frame(mlr_pred)
+```
+
+Creating RF prediction dataframe
+
+```{r}
+rf_pred <- read_rds("data/model/rf_pred.rds")
+rf_pred_df <- as.data.frame(rf_pred)
+```
+
+```{r}
+test_data_p <- cbind(test_data, GRF_pred_df)
+```
+
+```{r}
+test_data_mlr <- cbind(test_data, mlr_pred)
+```
+
+```{r}
+test_data_rf <- cbind(test_data, rf_pred)
+```
+
+```{r}
+#write_rds(test_data_p, "data/model/test_data_p.rds")
+```
+
+## Calculating RMSE
+
+```{r}
+mlr_pred_df <- read_rds("data/model/mlr_pred.rds") %>%
+  as.data.frame()
+
+colnames(mlr_pred_df) <- c("mlr_pred")
+
+rf_pred_df <- read_rds("data/model/rf_pred.rds")$predictions %>%
+  as.data.frame()
+
+colnames(rf_pred_df) <- c("rf_pred")
+
+gwRF_pred_df <- read_rds("data/model/grf_pred.rds") %>%
+  as.data.frame()
+
+colnames(gwRF_pred_df) <- c("gwrf_pred")
+
+prices_pred_df <- cbind(test_data$resale_price, mlr_pred_df, rf_pred_df,
+                        gwRF_pred_df) %>% 
+  rename("actual_price" = "test_data$resale_price")
+
+head(prices_pred_df)
+```
+
+GWRF
+
+```{r}
+
+sqrt(mean((prices_pred_df$actual_price - prices_pred_df$gwrf_pred)^2))
+```
+
+OLS
+
+```{r}
+
+sqrt(mean((prices_pred_df$actual_price - prices_pred_df$mlr_pred)^2))
+```
+
+RF
+
+```{r}
+sqrt(mean((prices_pred_df$actual_price - prices_pred_df$rf_pred)^2))
+```
+
+Through root mean square error calculation we see that RMSE for GWRF prediction has the lowest value, thus showing that this method gives the best predictions of prices. While OLS method has a significantly higher RMSE, showing that it is the most unreliable
+
+## Visualizing predicted values
+
+Just to visualize the results of RMSE calculation, lets plot a scatter plot graph
+
+### GRF pred
+
+```{r}
+ggplot(data = test_data_p,
+       aes(x = GRF_pred,
+           y = resale_price)) +
+  geom_point()
+```
+
+### MLR pred
+
+```{r}
+ggplot(data = test_data_mlr,
+       aes(x = mlr_pred,
+           y = resale_price)) +
+  geom_point()
+```
+
+A good predictive model will have the plotted values close to the diagonal line. From our plotting of mlr_pred for OLS, and GRF pred for GWRF we can see that GWRF plotting is closer to the diagonal line. This plot is consistent with our RMSE calculation. hence we can conclude that the geographically weighted random forest method is the best in terms of predicting housing resale prices.
