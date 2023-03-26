@@ -509,6 +509,8 @@ tm_shape(resale_sf) +
   tm_view(set.zoom.limits = c(11,14))
 ```
 
+From the plotting of the reslae prices on the map of Singapore, we see that the hdb units in and around central areas of singapore are darker red indicating that they are of higher price. The units in the Western and Northern areas of Singapore are cheaper than those in the Eastern part.
+
 ```{r}
 tmap_mode("plot")
 ```
